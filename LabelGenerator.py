@@ -88,25 +88,10 @@ class ResistorValue:
         return self.get_prefixed_number() + self.get_prefix()
 
 
-def resistor_color_table_1(num):
-    return [
-        HexColor("#030303"),
-        HexColor("#6f5500"),
-        HexColor("#ff0000"),
-        HexColor("#f07f00"),
-        HexColor("#ffff00"),
-        HexColor("#00c200"),
-        HexColor("#285fdd"),
-        HexColor("#b236a0"),
-        HexColor("#b2b2b2"),
-        HexColor("#fefefe"),
-    ][num]
-
-
-def resistor_color_table_2(num):
+def resistor_color_table(num):
     return [
         HexColor("#000000"),
-        HexColor("#994d00"),  # HexColor("#996633"),
+        HexColor("#994d00"),
         HexColor("#FF0000"),
         HexColor("#FF9900"),
         HexColor("#FFFF00"),
@@ -118,10 +103,25 @@ def resistor_color_table_2(num):
     ][num]
 
 
+def draw_fancy_resistor_stripe(c, x, y, width, height, color_table):
+    c.setFillColor(color_table[2])
+    c.rect(x, y+height*5/6, width, height/6, fill=1, stroke=0)
+    c.setFillColor(color_table[1])
+    c.rect(x, y+height*4/6, width, height/6, fill=1, stroke=0)
+    c.setFillColor(color_table[0])
+    c.rect(x, y+height*3/6, width, height/6, fill=1, stroke=0)
+    c.setFillColor(color_table[1])
+    c.rect(x, y+height*2/6, width, height/6, fill=1, stroke=0)
+    c.setFillColor(color_table[2])
+    c.rect(x, y+height*1/6, width, height/6, fill=1, stroke=0)
+    c.setFillColor(color_table[3])
+    c.rect(x, y+height*0/6, width, height/6, fill=1, stroke=0)
+
+
 def draw_resistor_stripe(c, x, y, width, height, stripe_value):
 
     if 0 <= stripe_value <= 9:
-        c.setFillColor(resistor_color_table_2(stripe_value))
+        c.setFillColor(resistor_color_table(stripe_value))
         c.rect(x, y, width, height, fill=1, stroke=0)
         return
 
@@ -133,20 +133,7 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
             HexColor("#c5d24f"),
         ]
 
-        # Gold
-        c.setFillColor(gold_table[2])
-        c.rect(x, y+height*5/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(gold_table[1])
-        c.rect(x, y+height*4/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(gold_table[0])
-        c.rect(x, y+height*3/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(gold_table[1])
-        c.rect(x, y+height*2/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(gold_table[2])
-        c.rect(x, y+height*1/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(gold_table[3])
-        c.rect(x, y+height*0/6, width, height/6, fill=1, stroke=0)
-
+        draw_fancy_resistor_stripe(c, x, y, width, height, gold_table)
         return
 
     elif stripe_value == -2:
@@ -157,20 +144,7 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
             HexColor("#b5b5b5"),
         ]
 
-        # Silver
-        c.setFillColor(silver_table[2])
-        c.rect(x, y+height*5/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(silver_table[1])
-        c.rect(x, y+height*4/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(silver_table[0])
-        c.rect(x, y+height*3/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(silver_table[1])
-        c.rect(x, y+height*2/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(silver_table[2])
-        c.rect(x, y+height*1/6, width, height/6, fill=1, stroke=0)
-        c.setFillColor(silver_table[3])
-        c.rect(x, y+height*0/6, width, height/6, fill=1, stroke=0)
-
+        draw_fancy_resistor_stripe(c, x, y, width, height, silver_table)
         return
 
     else:
@@ -179,7 +153,7 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
         c.rect(x, y, width, height, fill=1, stroke=1)
         c.line(x, y, x + width, y + height)
         c.line(x + width, y, x, y + height)
-        pass
+        return
 
 
 def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_codes):
@@ -359,11 +333,6 @@ def draw_resistor_sticker(c, row, column, ohms):
 
     # Draw resistor color code
     draw_resistor_colorcode(c, resistor_value,
-                            # HexColor("#eeeeee"),  HexColor("#888888"),
-                            # HexColor("#e7e1d8"),  HexColor("#ede7de"),
-                            # HexColor("#d7cf79"),  HexColor("#d7cf79"),
-                            # toColor("hsl(55, 54%, 66%)"), toColor("hsl(55, 54%, 66%)"),
-                            # toColor("hsl(55, 54%, 82%)"), toColor("hsl(55, 54%, 50%)"),
                             toColor("hsl(55, 54%, 100%)"), toColor("hsl(55, 54%, 70%)"),
                             rect.left + rect.width/2,
                             rect.bottom + rect.height/4 - rect.height/45,
@@ -371,11 +340,6 @@ def draw_resistor_sticker(c, row, column, ohms):
                             3)
 
     draw_resistor_colorcode(c, resistor_value,
-                            # HexColor("#eeeeee"),  HexColor("#888888"),
-                            # HexColor("#e7e1d8"),  HexColor("#ede7de"),
-                            # HexColor("#f9f3e9"),  HexColor("#beb8af"),
-                            # toColor("hsl(197, 59%, 69%)"), toColor("hsl(197, 59%, 69%)"),
-                            # toColor("hsl(197, 59%, 85%)"), toColor("hsl(197, 59%, 60%)"),
                             toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
                             rect.left + rect.width * 0.75,
                             rect.bottom + rect.height/4 - rect.height/45,
@@ -389,7 +353,6 @@ def draw_resistor_sticker(c, row, column, ohms):
 
 
 def render_stickers(c, values):
-
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             draw_resistor_sticker(c, rowId, columnId, value)
@@ -410,7 +373,7 @@ def main():
 
     render_stickers(c, [
         [  .1,  .02, .003],
-        [  11,   12,   13],
+        [  1,   12,   13],
         [  210,   220,   330],
         [  3100,   3200,   3300],
         [  41000,   42000,   43000],
@@ -420,6 +383,8 @@ def main():
         [  810000000,   820000000,   830000000],
         [  9100000000,   9200000000,   3300000000],
     ])
+
+    render_outlines(c)
 
     c.showPage()
     c.save()

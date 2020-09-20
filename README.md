@@ -14,7 +14,7 @@ The generated labels include:
 # Usage
 * Install python3
 * Install the python3 library `reportlab`. This library is used to do the actual PDF generation.
-* Modify the script `GenerateLabels.py` and add your own required resistor values in main().
+* Add your own required resistor values in `main()` of `GenerateLabels.py`.
 * Run the script `GenerateLabels.py`!
 
 It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260.
@@ -23,6 +23,6 @@ It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY
 
 This is based on an idea from Zach Pov.
 
-For more details on how these labels are meant to be used, visit his website:
+For more details on how to use these labels, visit his website:
 
 https://www.zachpoff.com/resources/quick-easy-and-cheap-resistor-storage/

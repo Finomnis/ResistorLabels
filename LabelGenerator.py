@@ -150,8 +150,10 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
         return
 
     else:
+
+        c.setLineWidth(0.5)
         c.setFillColor(gray, 0.3)
-        c.setStrokeColor(black, 0.5)
+        c.setStrokeColorRGB(0.5, 0.5, 0.5, 1.0)
         c.rect(x, y, width, height, fill=1, stroke=1)
         c.line(x, y, x + width, y + height)
         c.line(x + width, y, x, y + height)

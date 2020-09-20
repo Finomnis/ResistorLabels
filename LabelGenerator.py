@@ -393,7 +393,9 @@ def main():
         [  9100000000,   9200000000,   3300000000 ],
     ])
 
-    render_outlines(c)
+    ## Add this if you want to see the outlines of the labels.
+    ## Recommended to be commented out for the actual printing.
+    # render_outlines(c)
 
     c.showPage()
     c.save()

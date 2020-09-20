@@ -172,6 +172,9 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
 
 def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_codes):
 
+    if value.ohms_exp < num_codes - 4:
+        return
+
     border = height/6
     corner = (height-2*border)/4
 
@@ -396,14 +399,14 @@ def main():
     render_stickers(c, [
         [  .1,  .02, .003],
         [  11,   12,   13],
-        [  21,   22,   33],
-        [  31,   32,   33],
-        [  41,   42,   43],
-        [  51,   52,   53],
-        [  61,   62,   63],
-        [  71,   72,   73],
-        [  81,   82,   83],
-        [  91,   92,   33],
+        [  210,   220,   330],
+        [  3100,   3200,   3300],
+        [  41000,   42000,   43000],
+        [  510000,   520000,   530000],
+        [  6100000,   6200000,   6300000],
+        [  71000000,   72000000,   73000000],
+        [  810000000,   820000000,   830000000],
+        [  9100000000,   9200000000,   3300000000],
     ])
 
     c.showPage()

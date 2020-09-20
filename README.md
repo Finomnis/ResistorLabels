@@ -23,6 +23,6 @@ It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY
 
 This is based on an idea from Zach Pov.
 
-For more details on how these labels are meant to be used, visit his website:
+For more details on how to use these labels, visit his website:
 
 https://www.zachpoff.com/resources/quick-easy-and-cheap-resistor-storage/

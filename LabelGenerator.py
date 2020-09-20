@@ -73,6 +73,18 @@ class ResistorValue:
             return str(self.ohms_val)
 
     def format_value(self):
+
+        if self.ohms_exp < 0:
+            rendered_num = str(self.ohms_val)
+            while rendered_num[-1] == "0":
+                rendered_num = rendered_num[:-1]
+            if self.ohms_exp == -1:
+                return "0." + rendered_num
+            if self.ohms_exp == -2:
+                return "0.0" + rendered_num
+            if self.ohms_exp == -3:
+                return "0.00" + rendered_num
+
         return self.get_prefixed_number() + self.get_prefix()
 
 

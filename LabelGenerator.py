@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -355,6 +357,8 @@ def draw_resistor_sticker(c, row, column, ohms):
 def render_stickers(c, values):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
+            if not value:
+                continue
             draw_resistor_sticker(c, rowId, columnId, value)
 
 
@@ -371,13 +375,18 @@ def main():
 
     c = canvas.Canvas("ResistorLabels.pdf", pagesize=letter)
 
+    # #######################################################################
+    # Put your own resistor values in here!
+    # This has to be a grid of 10*3 values.
+    # Add "None" if no label should get generated at a specific position.
+    # #######################################################################
     render_stickers(c, [
         [  .1,  .02, .003],
         [  1,   12,   13],
         [  210,   220,   330],
         [  3100,   3200,   3300],
         [  41000,   42000,   43000],
-        [  510000,   520000,   530000],
+        [  510000,   None,   530000],
         [  6100000,   6200000,   6300000],
         [  71000000,   72000000,   73000000],
         [  810000000,   820000000,   830000000],

@@ -14,8 +14,8 @@ The generated labels include:
 # Usage
 * Install python3
 * Install the python3 library `reportlab`. This library is used to do the actual PDF generation.
-* Add your own required resistor values in `main()` of `GenerateLabels.py`.
-* Run the script `GenerateLabels.py`!
+* Add your own required resistor values in `main()` of `LabelGenerator.py`.
+* Run the script `LabelGenerator.py`!
 
 It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260.
 

@@ -303,7 +303,7 @@ def get_eia98_code(value):
     return digits + multiplier
 
 
-def draw_resistor_sticker(c, row, column, ohms):
+def draw_resistor_sticker(c, row, column, ohms, draw_center_line=True):
     rect = StickerRect(row, column)
 
     # Squish horizontally by a bit, to prevent clipping
@@ -311,12 +311,13 @@ def draw_resistor_sticker(c, row, column, ohms):
     rect.left += 0.05*inch
 
     # Draw middle line
-    c.setStrokeColor(black, 0.25)
-    c.setLineWidth(0.7)
-    c.line(rect.left,
-           rect.bottom + rect.height/2,
-           rect.left + rect.width,
-           rect.bottom + rect.height/2)
+    if draw_center_line:
+        c.setStrokeColor(black, 0.25)
+        c.setLineWidth(0.7)
+        c.line(rect.left,
+               rect.bottom + rect.height/2,
+               rect.left + rect.width,
+               rect.bottom + rect.height/2)
 
     # Draw resistor value
     resistor_value = ResistorValue(ohms)
@@ -360,12 +361,12 @@ def draw_resistor_sticker(c, row, column, ohms):
     c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom + rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c, values):
+def render_stickers(c, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if not value:
                 continue
-            draw_resistor_sticker(c, rowId, columnId, value)
+            draw_resistor_sticker(c, rowId, columnId, value, draw_center_line)
 
 
 def render_outlines(c):

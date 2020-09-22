@@ -306,6 +306,10 @@ def get_eia98_code(value):
 def draw_resistor_sticker(c, row, column, ohms):
     rect = StickerRect(row, column)
 
+    # Squish horizontally by a bit, to prevent clipping
+    rect.width -= 0.1*inch
+    rect.left += 0.05*inch
+
     # Draw middle line
     c.setStrokeColor(black, 0.25)
     c.setLineWidth(0.7)

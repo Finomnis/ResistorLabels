@@ -21,7 +21,7 @@ It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY
 
 # More Details
 
-This is based on an idea from Zach Pov.
+This is based on an idea from Zach Poff.
 
 For more details on how to use these labels, visit his website:
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -9,17 +9,52 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 
 import math
 
+from typing import Tuple
 
 pdfmetrics.registerFont(TTFont('Arial Bold', 'ArialBd.ttf'))
 
 
+class PaperConfig:
+    def __init__(
+        self,
+        pagesize: Tuple[float, float],
+        sticker_width: float,
+        sticker_height: float,
+        sticker_corner_radius: float,
+        left_margin: float,
+        top_margin: float,
+        horizontal_stride: float,
+        vertical_stride: float,
+    ) -> None:
+        self.pagesize = pagesize
+        self.sticker_width = sticker_width
+        self.sticker_height = sticker_height
+        self.sticker_corner_radius = sticker_corner_radius
+        self.left_margin = left_margin
+        self.top_margin = top_margin
+        self.horizontal_stride = horizontal_stride
+        self.vertical_stride = vertical_stride
+
+
+AVERY_5260 = PaperConfig(
+    pagesize=LETTER,
+    sticker_width=(2 + 5/8) * inch,
+    sticker_height=1 * inch,
+    sticker_corner_radius=0.1 * inch,
+    left_margin=3/16 * inch,
+    top_margin=1.5 * inch,
+    horizontal_stride=(2 + 6/8) * inch,
+    vertical_stride=1 * inch,
+)
+
+
 class StickerRect:
-    def __init__(self, row, column):
-        self.left = (3/16 + (2+6/8) * column) * inch
-        self.bottom = (11 - (1.5 + row)) * inch
-        self.width = (2+5/8) * inch
-        self.height = 1*inch
-        self.corner = 0.1*inch
+    def __init__(self, config: PaperConfig, row: int, column: int):
+        self.left = config.left_margin + config.horizontal_stride * column
+        self.bottom = config.pagesize[1] - (config.top_margin + config.vertical_stride * row)
+        self.width = config.sticker_width
+        self.height = config.sticker_height
+        self.corner = config.sticker_corner_radius
 
 
 class ResistorValue:
@@ -303,8 +338,8 @@ def get_eia98_code(value):
     return digits + multiplier
 
 
-def draw_resistor_sticker(c, row, column, ohms, draw_center_line=True):
-    rect = StickerRect(row, column)
+def draw_resistor_sticker(c, config, row, column, ohms, draw_center_line=True):
+    rect = StickerRect(config, row, column)
 
     # Squish horizontally by a bit, to prevent clipping
     rect.width -= 0.1*inch
@@ -356,23 +391,26 @@ def draw_resistor_sticker(c, row, column, ohms, draw_center_line=True):
                             4)
 
     c.setFont('Arial Bold', smd_font_size * 1.35)
-    c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom + rect.height/13, get_3digit_code(resistor_value))
-    c.drawCentredString(rect.left + rect.width*3/4, rect.bottom + rect.height/13, get_4digit_code(resistor_value))
-    c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom + rect.height/13, get_eia98_code(resistor_value))
+    c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +
+                 rect.height/13, get_3digit_code(resistor_value))
+    c.drawCentredString(rect.left + rect.width*3/4, rect.bottom +
+                        rect.height/13, get_4digit_code(resistor_value))
+    c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom +
+                      rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c, values, draw_center_line=True):
+def render_stickers(c, config: PaperConfig, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if not value:
                 continue
-            draw_resistor_sticker(c, rowId, columnId, value, draw_center_line)
+            draw_resistor_sticker(c, config, rowId, columnId, value, draw_center_line)
 
 
-def render_outlines(c):
+def render_outlines(c, config: PaperConfig):
     for y in range(3):
         for x in range(10):
-            rect = StickerRect(x, y)
+            rect = StickerRect(config, x, y)
             c.setStrokeColor(black, 0.1)
             c.setLineWidth(0)
             c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
@@ -380,30 +418,40 @@ def render_outlines(c):
 
 def main():
 
-    c = canvas.Canvas("ResistorLabels.pdf", pagesize=letter)
+    # #######################################################################
+    # Comment in the correct type of paper you want to print on.
+    # #######################################################################
+    config = AVERY_5260
 
     # #######################################################################
     # Put your own resistor values in here!
-    # This has to be a grid of 10*3 values.
+    # This has to be a grid of 10*3 values for Avery 5260.
     # Add "None" if no label should get generated at a specific position.
     # #######################################################################
-    render_stickers(c, [
-        [          .1,          .02,         .003 ],
-        [           1,           12,           13 ],
-        [         210,          220,          330 ],
-        [        3100,         3200,         3300 ],
-        [       41000,        42000,        43000 ],
-        [      510000,         None,       530000 ],
-        [     6100000,      6200000,      6300000 ],
-        [    71000000,     72000000,     73000000 ],
-        [   810000000,    820000000,    830000000 ],
-        [  9100000000,   9200000000,   3300000000 ],
-    ])
+    resistor_values = [
+        [.1,           .02,          .003],
+        [1,            12,           13],
+        [210,          220,          330],
+        [3100,         3200,         3300],
+        [41000,        42000,        43000],
+        [510000,       None,         530000],
+        [6100000,      6200000,      6300000],
+        [71000000,     72000000,     73000000],
+        [810000000,    820000000,    830000000],
+        [9100000000,   9200000000,   3300000000],
+    ]
 
-    ## Add this if you want to see the outlines of the labels.
-    ## Recommended to be commented out for the actual printing.
-    # render_outlines(c)
+    # Create the render canvas
+    c = canvas.Canvas("ResistorLabels.pdf", pagesize=config.pagesize)
 
+    # Render the stickers
+    render_stickers(c, config, resistor_values)
+
+    # Add this if you want to see the outlines of the labels.
+    # Recommended to be commented out for the actual printing.
+    render_outlines(c, config)
+
+    # Store canvas to PDF file
     c.showPage()
     c.save()
 

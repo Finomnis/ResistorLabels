@@ -61,12 +61,12 @@ AVERY_L7157 = PaperConfig(
 
 
 class StickerRect:
-    def __init__(self, config: PaperConfig, row: int, column: int):
-        self.left = config.left_margin + config.horizontal_stride * column
-        self.bottom = config.pagesize[1] - (config.top_margin + config.vertical_stride * row)
-        self.width = config.sticker_width
-        self.height = config.sticker_height
-        self.corner = config.sticker_corner_radius
+    def __init__(self, layout: PaperConfig, row: int, column: int):
+        self.left = layout.left_margin + layout.horizontal_stride * column
+        self.bottom = layout.pagesize[1] - (layout.top_margin + layout.vertical_stride * row)
+        self.width = layout.sticker_width
+        self.height = layout.sticker_height
+        self.corner = layout.sticker_corner_radius
 
 
 class ResistorValue:
@@ -350,8 +350,8 @@ def get_eia98_code(value):
     return digits + multiplier
 
 
-def draw_resistor_sticker(c, config, row, column, ohms, draw_center_line=True):
-    rect = StickerRect(config, row, column)
+def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
+    rect = StickerRect(layout, row, column)
 
     # Squish horizontally by a bit, to prevent clipping
     rect.width -= 0.1*inch
@@ -411,18 +411,18 @@ def draw_resistor_sticker(c, config, row, column, ohms, draw_center_line=True):
                       rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c, config: PaperConfig, values, draw_center_line=True):
+def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if not value:
                 continue
-            draw_resistor_sticker(c, config, rowId, columnId, value, draw_center_line)
+            draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
 
 
-def render_outlines(c, config: PaperConfig):
+def render_outlines(c, layout: PaperConfig):
     for y in range(3):
         for x in range(10):
-            rect = StickerRect(config, x, y)
+            rect = StickerRect(layout, x, y)
             c.setStrokeColor(black, 0.1)
             c.setLineWidth(0)
             c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
@@ -433,8 +433,8 @@ def main():
     # ############################################################################
     # Select the correct type of paper you want to print on.
     # ############################################################################
-    config = AVERY_5260
-    # config = AVERY_L7157
+    layout = AVERY_5260
+    # layout = AVERY_L7157
 
     # ############################################################################
     # Put your own resistor values in here!
@@ -455,14 +455,14 @@ def main():
     ]
 
     # Create the render canvas
-    c = canvas.Canvas("ResistorLabels.pdf", pagesize=config.pagesize)
+    c = canvas.Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, config, resistor_values)
+    render_stickers(c, layout, resistor_values)
 
     # # Add this if you want to see the outlines of the labels.
     # # Recommended to be commented out for the actual printing.
-    # render_outlines(c, config)
+    # render_outlines(c, layout)
 
     # Store canvas to PDF file
     c.showPage()

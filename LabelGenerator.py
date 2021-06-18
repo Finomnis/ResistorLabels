@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import LETTER
-from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import A4, LETTER
+from reportlab.lib.units import inch, mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import black, toColor, HexColor, gray
@@ -45,6 +45,18 @@ AVERY_5260 = PaperConfig(
     top_margin=1.5 * inch,
     horizontal_stride=(2 + 6/8) * inch,
     vertical_stride=1 * inch,
+)
+
+
+AVERY_L7157 = PaperConfig(
+    pagesize=A4,
+    sticker_width=64 * mm,
+    sticker_height=24.3 * mm,
+    sticker_corner_radius=3 * mm,
+    left_margin=6.4 * mm,
+    top_margin=38.4 * mm,
+    horizontal_stride=66.552 * mm,
+    vertical_stride=24.3 * mm,
 )
 
 
@@ -418,16 +430,17 @@ def render_outlines(c, config: PaperConfig):
 
 def main():
 
-    # #######################################################################
-    # Comment in the correct type of paper you want to print on.
-    # #######################################################################
+    # ############################################################################
+    # Select the correct type of paper you want to print on.
+    # ############################################################################
     config = AVERY_5260
+    # config = AVERY_L7157
 
-    # #######################################################################
+    # ############################################################################
     # Put your own resistor values in here!
-    # This has to be a grid of 10*3 values for Avery 5260.
+    # This has to be a grid of 10*3 values for Avery 5260 or 11*3 for Avery L7157.
     # Add "None" if no label should get generated at a specific position.
-    # #######################################################################
+    # ############################################################################
     resistor_values = [
         [.1,           .02,          .003],
         [1,            12,           13],
@@ -447,9 +460,9 @@ def main():
     # Render the stickers
     render_stickers(c, config, resistor_values)
 
-    # Add this if you want to see the outlines of the labels.
-    # Recommended to be commented out for the actual printing.
-    render_outlines(c, config)
+    # # Add this if you want to see the outlines of the labels.
+    # # Recommended to be commented out for the actual printing.
+    # render_outlines(c, config)
 
     # Store canvas to PDF file
     c.showPage()

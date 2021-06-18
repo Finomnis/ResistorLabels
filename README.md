@@ -2,7 +2,7 @@
 
 This script generates labels for resistor zip bags.
 
-It is meant for AVERY 5260 or AVERY L7157 Labels and 7x10cm (3"x4") zip bags.
+It is meant for AVERY 5260 or AVERY L7157 labels and 7x10cm (3"x4") zip bags.
 
 The generated labels include:
 

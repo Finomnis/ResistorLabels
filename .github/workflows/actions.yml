@@ -1,9 +1,9 @@
-name: Python package
+name: Actions
 
 on: [push]
 
 jobs:
-  build:
+  run:
 
     runs-on: ${{ matrix.os }}
     strategy:

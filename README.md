@@ -21,7 +21,7 @@ The generated labels include:
 -   If using Avery L7157, change the `layout` value in `main()` to `AVERY_L7157`.
 -   Run the script `LabelGenerator.py`!
 
-It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260.
+It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260/L7157.
 
 # More Details
 

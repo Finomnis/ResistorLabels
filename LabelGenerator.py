@@ -83,7 +83,7 @@ class ResistorValue:
         self.ohms_val = ohms_val
         self.ohms_exp = ohms_exp + 2
 
-        print(self.ohms_val, self.ohms_exp, self.format_value(), self.get_value())
+        # print(self.ohms_val, self.ohms_exp, self.format_value(), self.get_value())
 
     def get_value(self):
         return self.ohms_val * math.pow(10, self.ohms_exp - 2)
@@ -368,6 +368,7 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
 
     # Draw resistor value
     resistor_value = ResistorValue(ohms)
+    print(f"Generating sticker '{resistor_value.format_value()} \u2126'")
 
     value_font_size = 0.25 * inch
     ohm_font_size = 0.15 * inch

@@ -23,6 +23,14 @@ The generated labels include:
 
 It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260/L7157.
 
+# Alternative Font
+
+The default font is 'Arial Bold'. You can alternatively use 'Roboto Bold' by invoking the script with the `--roboto` flag.
+
+'Roboto' is an [open font by google](https://fonts.google.com/specimen/Roboto) and is included in this repository.
+
+Adding the `--roboto` flag is required for Mac OS, as the script currently does not support 'Arial Bold' on Mac OS.
+
 # More Details
 
 This is based on an idea from Zach Poff.

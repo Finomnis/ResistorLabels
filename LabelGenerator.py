@@ -16,7 +16,7 @@ for font_name in ['ArialBd.ttf', 'Arial_Bold.ttf']:
         pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
         print(f"Using font {font_name} ...")
         break
-    except TTFError as e:
+    except TTFError:
         pass
 else:
     print("Error: Unable to load font 'Arial Bold'.")

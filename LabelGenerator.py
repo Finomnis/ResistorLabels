@@ -8,21 +8,39 @@ from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.lib.colors import black, toColor, HexColor, gray
 
 import math
+import sys
 
 from typing import Tuple
 
-for font_name in ['ArialBd.ttf', 'Arial_Bold.ttf']:
+
+def load_font(font_name: str):
+    pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
+    print("Using font '{}' ...".format(font_name))
+
+
+if "--roboto" in sys.argv:
     try:
-        pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
-        print("Using font '{}' ...".format(font_name))
-        break
-    except TTFError:
-        pass
+        load_font('Roboto-Bold.ttf')
+    except TTFError as e:
+        print("Error: {}".format(e))
+        exit(1)
+
 else:
-    print("Error: Unable to load font 'Arial Bold'.")
-    print("If you are on Ubuntu, you can install it with:")
-    print("    sudo apt install ttf-mscorefonts-installer")
-    exit(1)
+    for font_name in ['ArialBd.ttf', 'Arial_Bold.ttf']:
+        try:
+            load_font(font_name)
+            break
+        except TTFError:
+            pass
+    else:
+        print("Error: Unable to load font 'Arial Bold'.")
+        print("If you are on Ubuntu, you can install it with:")
+        print("    sudo apt install ttf-mscorefonts-installer")
+        print("Alternatively, use the 'Roboto' font by invoking this script with")
+        print("the '--roboto' flag.")
+        print("On Mac OS the '--roboto' flag is mandatory because this script currently")
+        print("does not support Arial on Mac OS.")
+        exit(1)
 
 
 class PaperConfig:

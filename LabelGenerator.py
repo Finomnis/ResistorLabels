@@ -14,7 +14,7 @@ from typing import Tuple
 for font_name in ['ArialBd.ttf', 'Arial_Bold.ttf']:
     try:
         pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
-        print(f"Using font {font_name} ...")
+        print("Using font '{}' ...".format(font_name))
         break
     except TTFError:
         pass
@@ -379,7 +379,7 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
 
     # Draw resistor value
     resistor_value = ResistorValue(ohms)
-    print(f"Generating sticker '{resistor_value.format_value()} \u2126'")
+    print("Generating sticker '{} \u2126'".format(resistor_value.format_value()))
 
     value_font_size = 0.25 * inch
     ohm_font_size = 0.15 * inch

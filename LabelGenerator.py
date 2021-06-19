@@ -397,7 +397,7 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
 
     # Draw resistor value
     resistor_value = ResistorValue(ohms)
-    print("Generating sticker '{} \u2126'".format(resistor_value.format_value()))
+    print("Generating sticker '{}'".format(resistor_value.format_value()))
 
     value_font_size = 0.25 * inch
     ohm_font_size = 0.15 * inch

@@ -4,14 +4,25 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, LETTER
 from reportlab.lib.units import inch, mm
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.ttfonts import TTFont, TTFError
 from reportlab.lib.colors import black, toColor, HexColor, gray
 
 import math
 
 from typing import Tuple
 
-pdfmetrics.registerFont(TTFont('Arial Bold', 'ArialBd.ttf'))
+for font_name in ['ArialBd.ttf', 'Arial_Bold.ttf']:
+    try:
+        pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
+        print(f"Using font {font_name} ...")
+        break
+    except TTFError as e:
+        pass
+else:
+    print("Error: Unable to load font 'Arial Bold'.")
+    print("If you are on Ubuntu, you can install it with:")
+    print("    sudo apt install ttf-mscorefonts-installer")
+    exit(1)
 
 
 class PaperConfig:

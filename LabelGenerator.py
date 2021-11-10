@@ -71,7 +71,7 @@ AVERY_5260 = PaperConfig(
     sticker_height=1 * inch,
     sticker_corner_radius=0.1 * inch,
     left_margin=3/16 * inch,
-    top_margin=1.5 * inch,
+    top_margin=0.5 * inch,
     horizontal_stride=(2 + 6/8) * inch,
     vertical_stride=1 * inch,
 )
@@ -83,7 +83,7 @@ AVERY_L7157 = PaperConfig(
     sticker_height=24.3 * mm,
     sticker_corner_radius=3 * mm,
     left_margin=6.4 * mm,
-    top_margin=38.4 * mm,
+    top_margin=14.1 * mm,
     horizontal_stride=66.552 * mm,
     vertical_stride=24.3 * mm,
 )
@@ -92,7 +92,7 @@ AVERY_L7157 = PaperConfig(
 class StickerRect:
     def __init__(self, layout: PaperConfig, row: int, column: int):
         self.left = layout.left_margin + layout.horizontal_stride * column
-        self.bottom = layout.pagesize[1] - (layout.top_margin + layout.vertical_stride * row)
+        self.bottom = layout.pagesize[1] - (layout.sticker_height + layout.top_margin + layout.vertical_stride * row)
         self.width = layout.sticker_width
         self.height = layout.sticker_height
         self.corner = layout.sticker_corner_radius

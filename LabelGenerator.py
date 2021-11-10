@@ -104,7 +104,9 @@ EJ_RANGE_24 = PaperConfig(
 class StickerRect:
     def __init__(self, layout: PaperConfig, row: int, column: int):
         self.left = layout.left_margin + layout.horizontal_stride * column
-        self.bottom = layout.pagesize[1] - (layout.sticker_height + layout.top_margin + layout.vertical_stride * row)
+        self.bottom = layout.pagesize[1] - (
+            layout.sticker_height + layout.top_margin + layout.vertical_stride * row
+        )
         self.width = layout.sticker_width
         self.height = layout.sticker_height
         self.corner = layout.sticker_corner_radius

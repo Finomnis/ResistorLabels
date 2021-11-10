@@ -1,6 +1,12 @@
 name: Actions
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   run:
@@ -26,6 +32,7 @@ jobs:
         run: |
           echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
           export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get -yq install ca-certificates
           sudo apt-get -yq install ttf-mscorefonts-installer
         if: matrix.os == 'ubuntu-latest'
       - name: Lint with flake8

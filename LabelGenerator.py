@@ -88,13 +88,14 @@ AVERY_L7157 = PaperConfig(
     vertical_stride=24.3 * mm,
 )
 
+
 EJ_RANGE_24 = PaperConfig(
     pagesize=A4,
     sticker_width=63.5 * mm,
     sticker_height=33.9 * mm,
     sticker_corner_radius=2 * mm,
     left_margin=6.5 * mm,
-    top_margin=13.2* mm,
+    top_margin=13.2 * mm,
     horizontal_stride=66.45 * mm,
     vertical_stride=33.9 * mm,
 )
@@ -477,12 +478,15 @@ def main():
     layout = AVERY_5260
     # layout = AVERY_L7157
     # layout = EJ_RANGE_24
+
     # ############################################################################
     # Put your own resistor values in here!
+    #
     # This has to be a grid of:
-    # 10*3 values for Avery 5260 
-    # 11*3 for Avery L7157.
-    # 8*3 for EJ Range 24
+    #  - 10*3 values for Avery 5260
+    #  - 11*3 for Avery L7157.
+    #  - 8*3 for EJ Range 24
+    #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
     resistor_values = [

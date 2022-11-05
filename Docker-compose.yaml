@@ -4,4 +4,4 @@ services:
     build: .
     volumes:
       - .:/resistorLabels
-    entrypoint: python3 /resistorLabels/LabelGenerator.py --roboto
+    entrypoint: python3 /resistorLabels/LabelGenerator.py

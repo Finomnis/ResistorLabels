@@ -13,7 +13,16 @@ The generated labels include:
 
 <img src="Example.svg">
 
-# Usage
+# Usage (Docker)
+
+If you have docker and docker compose installed, you can easily generate the pdf by running the following commands: (Otherwise see python steps below)
+
+```
+docker compose build labelgenerator
+docker compose run labelgenerator
+```
+
+# Usage (python)
 
 -   Install python3
 -   Install the python3 library `reportlab`. This library is used to do the actual PDF generation.

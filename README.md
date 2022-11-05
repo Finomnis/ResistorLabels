@@ -13,12 +13,6 @@ The generated labels include:
 
 <img src="Example.svg">
 
-# Usage (Docker)
-
-If you have docker and docker compose installed, run the following command (Otherwise see python steps below)
-
-- `docker compose run labelgenerator`
-
 # Usage (python)
 
 -   Install python3
@@ -28,6 +22,12 @@ If you have docker and docker compose installed, run the following command (Othe
 -   Run the script `LabelGenerator.py`!
 
 It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260/L7157.
+
+# Usage (Docker)
+
+If you have docker and docker compose installed, run the following command.
+
+- `docker compose run labelgenerator`
 
 # More Details
 

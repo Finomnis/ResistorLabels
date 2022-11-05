@@ -15,12 +15,9 @@ The generated labels include:
 
 # Usage (Docker)
 
-If you have docker and docker compose installed, you can easily generate the pdf by running the following commands: (Otherwise see python steps below)
+If you have docker and docker compose installed, run the following command (Otherwise see python steps below)
 
-```
-docker compose build labelgenerator
-docker compose run labelgenerator
-```
+- `docker compose run labelgenerator`
 
 # Usage (python)
 

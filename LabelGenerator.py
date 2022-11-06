@@ -322,7 +322,7 @@ def get_3digit_code(value):
 
     if value.ohms_exp == 0:
         if value.ohms_val == 0:
-            return "R" + digits
+            return "000"
         else:
             return digits[0] + "R" + digits[1]
 
@@ -349,7 +349,7 @@ def get_4digit_code(value):
 
     if value.ohms_exp == 0:
         if value.ohms_val == 0:
-            return "R" + digits
+            return "0000"
         else: 
             return digits[0] + "R" + digits[1] + digits[2]
 

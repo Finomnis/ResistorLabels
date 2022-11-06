@@ -115,12 +115,13 @@ class StickerRect:
 class ResistorValue:
     def __init__(self, ohms):
         if ohms == 0:
-            ohms_exp = 0
+            ohms_exp = -2
+            ohms_val = 0
         else:
             # Fixed-point value with 2 decimals precision
             ohms_exp = math.floor(math.log10(ohms))
-        ohms_val = round(ohms / math.pow(10, ohms_exp - 2))
-        ohms_exp -= 2
+            ohms_val = round(ohms / math.pow(10, ohms_exp - 2))
+            ohms_exp -= 2
 
         while ohms_val >= 1000:
             ohms_exp += 1

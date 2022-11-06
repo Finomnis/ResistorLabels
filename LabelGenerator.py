@@ -272,29 +272,37 @@ def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_c
     width_without_corner = width - 2*border - 2*corner
     stripe_width = width_without_corner/10
 
-    for i in range(num_codes):
+    if value.ohms_val == 0:
+        draw_resistor_stripe(c,
+                        x + border + corner + stripe_width / 2 + 2 * stripe_width * 2,
+                        y + border,
+                        stripe_width,
+                        height - 2 * border,
+                        0)
+    else:
+        for i in range(num_codes):
 
-        if i == num_codes - 1:
-            stripe_value = value.ohms_exp + 2 - num_codes
-        else:
-            stripe_value = value.ohms_val
-            for _ in range(2-i):
-                stripe_value //= 10
-            stripe_value %= 10
+            if i == num_codes - 1:
+                stripe_value = value.ohms_exp + 2 - num_codes
+            else:
+                stripe_value = value.ohms_val
+                for _ in range(2-i):
+                    stripe_value //= 10
+                stripe_value %= 10
+
+            draw_resistor_stripe(c,
+                                x + border + corner + stripe_width / 2 + 2 * stripe_width * i,
+                                y + border,
+                                stripe_width,
+                                height - 2 * border,
+                                stripe_value)
 
         draw_resistor_stripe(c,
-                             x + border + corner + stripe_width / 2 + 2 * stripe_width * i,
-                             y + border,
-                             stripe_width,
-                             height - 2 * border,
-                             stripe_value)
-
-    draw_resistor_stripe(c,
-                         x + width - border - corner - stripe_width * 1.5,
-                         y + border,
-                         stripe_width,
-                         height - 2 * border,
-                         -3)
+                            x + width - border - corner - stripe_width * 1.5,
+                            y + border,
+                            stripe_width,
+                            height - 2 * border,
+                            -3)
 
     c.setFillColor(black)
     c.setStrokeColor(black, 1)
@@ -447,14 +455,14 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
                             rect.left + rect.width/2,
                             rect.bottom + rect.height/4 - rect.height/45,
                             rect.width/4, rect.height/4,
-                            3)
+                            (1 if resistor_value.ohms_val == 0 else 3))
 
     draw_resistor_colorcode(c, resistor_value,
                             toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
                             rect.left + rect.width * 0.75,
                             rect.bottom + rect.height/4 - rect.height/45,
                             rect.width/4, rect.height/4,
-                            4)
+                            (1 if resistor_value.ohms_val == 0 else 4))
 
     c.setFont('Arial Bold', smd_font_size * 1.35)
     c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +

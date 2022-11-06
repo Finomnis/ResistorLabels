@@ -468,7 +468,7 @@ def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if not value:
-                if value is None:
+                if value is not 0:
                     continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
 

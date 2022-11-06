@@ -114,21 +114,20 @@ class StickerRect:
 
 class ResistorValue:
     def __init__(self, ohms):
-        if ohms == 0:
-            ohms_exp = -2
-            ohms_val = 0
-        else:
+        ohms_exp = 0
+        ohms_val = 0
+
+        if ohms != 0:
             # Fixed-point value with 2 decimals precision
             ohms_exp = math.floor(math.log10(ohms))
             ohms_val = round(ohms / math.pow(10, ohms_exp - 2))
-            ohms_exp -= 2
 
-        while ohms_val >= 1000:
-            ohms_exp += 1
-            ohms_val //= 10
+            while ohms_val >= 1000:
+                ohms_exp += 1
+                ohms_val //= 10
 
         self.ohms_val = ohms_val
-        self.ohms_exp = ohms_exp + 2
+        self.ohms_exp = ohms_exp
 
         # print(self.ohms_val, self.ohms_exp, self.format_value(), self.get_value())
 
@@ -274,11 +273,11 @@ def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_c
 
     if value.ohms_val == 0:
         draw_resistor_stripe(c,
-                        x + border + corner + stripe_width / 2 + 2 * stripe_width * 2,
-                        y + border,
-                        stripe_width,
-                        height - 2 * border,
-                        0)
+                             x + border + corner + stripe_width / 2 + 2 * stripe_width * 2,
+                             y + border,
+                             stripe_width,
+                             height - 2 * border,
+                             0)
     else:
         for i in range(num_codes):
 
@@ -291,18 +290,18 @@ def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_c
                 stripe_value %= 10
 
             draw_resistor_stripe(c,
-                                x + border + corner + stripe_width / 2 + 2 * stripe_width * i,
-                                y + border,
-                                stripe_width,
-                                height - 2 * border,
-                                stripe_value)
+                                 x + border + corner + stripe_width / 2 + 2 * stripe_width * i,
+                                 y + border,
+                                 stripe_width,
+                                 height - 2 * border,
+                                 stripe_value)
 
         draw_resistor_stripe(c,
-                            x + width - border - corner - stripe_width * 1.5,
-                            y + border,
-                            stripe_width,
-                            height - 2 * border,
-                            -3)
+                             x + width - border - corner - stripe_width * 1.5,
+                             y + border,
+                             stripe_width,
+                             height - 2 * border,
+                             -3)
 
     c.setFillColor(black)
     c.setStrokeColor(black, 1)
@@ -314,6 +313,9 @@ def get_3digit_code(value):
     if value.ohms_val % 10 != 0:
         return ""
 
+    if value.ohms_val == 0:
+        return "000"
+
     digits = str(value.ohms_val // 10)
 
     if value.ohms_exp > 0:
@@ -321,10 +323,7 @@ def get_3digit_code(value):
         return digits + multiplier
 
     if value.ohms_exp == 0:
-        if value.ohms_val == 0:
-            return "0"
-        else:
-            return digits[0] + "R" + digits[1]
+        return digits[0] + "R" + digits[1]
 
     if value.ohms_exp == -1:
         return "R" + digits
@@ -340,6 +339,9 @@ def get_3digit_code(value):
 def get_4digit_code(value):
     digits = str(value.ohms_val)
 
+    if value.ohms_val == 0:
+        return "0000"
+
     if value.ohms_exp > 1:
         multiplier = str(value.ohms_exp - 2)
         return digits + multiplier
@@ -348,10 +350,7 @@ def get_4digit_code(value):
         return digits[0] + digits[1] + "R" + digits[2]
 
     if value.ohms_exp == 0:
-        if value.ohms_val == 0:
-            return "0000"
-        else: 
-            return digits[0] + "R" + digits[1] + digits[2]
+        return digits[0] + "R" + digits[1] + digits[2]
 
     if value.ohms_exp == -1:
         return "R" + digits
@@ -455,14 +454,14 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
                             rect.left + rect.width/2,
                             rect.bottom + rect.height/4 - rect.height/45,
                             rect.width/4, rect.height/4,
-                            (1 if resistor_value.ohms_val == 0 else 3))
+                            3)
 
     draw_resistor_colorcode(c, resistor_value,
                             toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
                             rect.left + rect.width * 0.75,
                             rect.bottom + rect.height/4 - rect.height/45,
                             rect.width/4, rect.height/4,
-                            (1 if resistor_value.ohms_val == 0 else 4))
+                            4)
 
     c.setFont('Arial Bold', smd_font_size * 1.35)
     c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +
@@ -476,9 +475,8 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
-            if not value:
-                if value is not 0:
-                    continue
+            if value is None:
+                continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
 
 
@@ -511,7 +509,7 @@ def main():
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
     resistor_values = [
-        [.1,           .02,          .003],
+        [0,            0.02,         .1],
         [1,            12,           13],
         [210,          220,          330],
         [3100,         3200,         3300],

@@ -114,8 +114,11 @@ class StickerRect:
 
 class ResistorValue:
     def __init__(self, ohms):
-        # Fixed-point value with 2 decimals precision
-        ohms_exp = math.floor(math.log10(ohms))
+        if ohms == 0:
+            ohms_exp = 0
+        else:
+            # Fixed-point value with 2 decimals precision
+            ohms_exp = math.floor(math.log10(ohms))
         ohms_val = round(ohms / math.pow(10, ohms_exp - 2))
         ohms_exp -= 2
 
@@ -309,7 +312,10 @@ def get_3digit_code(value):
         return digits + multiplier
 
     if value.ohms_exp == 0:
-        return digits[0] + "R" + digits[1]
+        if value.ohms_val == 0:
+            return "R" + digits
+        else:
+            return digits[0] + "R" + digits[1]
 
     if value.ohms_exp == -1:
         return "R" + digits
@@ -333,7 +339,10 @@ def get_4digit_code(value):
         return digits[0] + digits[1] + "R" + digits[2]
 
     if value.ohms_exp == 0:
-        return digits[0] + "R" + digits[1] + digits[2]
+        if value.ohms_val == 0:
+            return "R" + digits
+        else: 
+            return digits[0] + "R" + digits[1] + digits[2]
 
     if value.ohms_exp == -1:
         return "R" + digits
@@ -458,8 +467,6 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
-            if not value:
-                continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
 
 

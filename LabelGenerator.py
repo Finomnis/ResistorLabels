@@ -18,6 +18,10 @@ def load_font(font_name: str):
     print("Using font '{}' ...".format(font_name))
 
 
+mirror = False
+if "--mirror" in sys.argv:
+    mirror = True
+
 if "--roboto" in sys.argv:
     try:
         load_font('Roboto-Bold.ttf')
@@ -483,12 +487,15 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
 
 
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
+    totalRows = len(values)
+    totalColumns = len(values[0])
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if value is None:
                 continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
-            draw_resistor_sticker(c, layout, rowId+1, columnId+1, value, draw_center_line, True) #TODO: don't hardcode 3 and 10
+            if mirror:
+                draw_resistor_sticker(c, layout, totalRows-1-rowId, totalColumns-1-columnId, value, draw_center_line, True)
 
 
 def render_outlines(c, layout: PaperConfig):

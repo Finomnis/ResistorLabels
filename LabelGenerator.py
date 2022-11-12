@@ -410,7 +410,7 @@ def get_eia98_code(value):
     return digits + multiplier
 
 
-def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
+def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, mirror=False):
     rect = StickerRect(layout, row, column)
 
     # Squish horizontally by a bit, to prevent clipping
@@ -442,6 +442,14 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
     total_text_width = ohm_width + value_width + space_between
     text_left = rect.left + rect.width/4 - total_text_width/2
     text_bottom = rect.bottom + rect.height/4 - value_font_size/2
+    if mirror:
+        print("Drawing mirrored")
+        c.saveState()
+        c.translate(c._pagesize[0] , c._pagesize[1])
+        c.rotate(180)
+
+    print("text bottom is {}".format(text_bottom))
+    print("text_left is {}".format(text_left))
 
     c.setFont('Arial Bold', value_font_size * 1.35)
     c.drawString(text_left, text_bottom, value_string)
@@ -470,6 +478,8 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True):
                         rect.height/13, get_4digit_code(resistor_value))
     c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom +
                       rect.height/13, get_eia98_code(resistor_value))
+    if mirror:
+        c.restoreState()
 
 
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
@@ -478,6 +488,7 @@ def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
             if value is None:
                 continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
+            draw_resistor_sticker(c, layout, rowId+1, columnId+1, value, draw_center_line, True) #TODO: don't hardcode 3 and 10
 
 
 def render_outlines(c, layout: PaperConfig):

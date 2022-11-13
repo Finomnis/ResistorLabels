@@ -106,7 +106,7 @@ EJ_RANGE_24 = PaperConfig(
 
 
 class StickerRect:
-    def __init__(self, layout: PaperConfig, row: int, column: int, mirror: bool, c: canvas.Canvas):
+    def __init__(self, c: canvas.Canvas, layout: PaperConfig, row: int, column: int, mirror: bool = True):
         self.left = layout.left_margin + layout.horizontal_stride * column
         self.bottom = layout.pagesize[1] - (
             layout.sticker_height + layout.top_margin + layout.vertical_stride * row
@@ -435,7 +435,7 @@ def get_eia98_code(value):
 
 
 def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, mirror=False):
-    with StickerRect(layout, row, column, mirror, c) as rect:
+    with StickerRect(c, layout, row, column, mirror) as rect:
         # Squish horizontally by a bit, to prevent clipping
         rect.width -= 0.1*inch
         rect.left += 0.05*inch
@@ -508,7 +508,7 @@ def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
 def render_outlines(c, layout: PaperConfig):
     for y in range(3):
         for x in range(10):
-            with StickerRect(layout, x, y, False, c) as rect:
+            with StickerRect(c, layout, x, y, False) as rect:
                 c.setStrokeColor(black, 0.1)
                 c.setLineWidth(0)
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)

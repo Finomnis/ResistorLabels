@@ -451,8 +451,6 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
         c.translate(c._pagesize[0], c._pagesize[1])
         c.rotate(180)
 
-    print("text bottom is {}".format(text_bottom))
-    print("text_left is {}".format(text_left))
 
     c.setFont('Arial Bold', value_font_size * 1.35)
     c.drawString(text_left, text_bottom, value_string)

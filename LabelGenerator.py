@@ -447,7 +447,6 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
     text_left = rect.left + rect.width/4 - total_text_width/2
     text_bottom = rect.bottom + rect.height/4 - value_font_size/2
     if mirror:
-        print("Drawing mirrored")
         c.saveState()
         c.translate(c._pagesize[0], c._pagesize[1])
         c.rotate(180)
@@ -497,7 +496,7 @@ def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
                 continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
             if mirror:
-                draw_resistor_sticker(c, layout, totalRows-1-rowId+emptyRows, totalColumns-1-columnId, value, draw_center_line, True)
+                draw_resistor_sticker(c, layout, totalRows-1-rowId+emptyRows, totalColumns-1-columnId, value, False, True)
 
 
 def render_outlines(c, layout: PaperConfig):

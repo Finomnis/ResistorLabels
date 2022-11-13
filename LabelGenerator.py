@@ -436,6 +436,7 @@ def get_eia98_code(value):
 
 def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, mirror=False):
     with StickerRect(c, layout, row, column, mirror) as rect:
+
         # Squish horizontally by a bit, to prevent clipping
         rect.width -= 0.1*inch
         rect.left += 0.05*inch

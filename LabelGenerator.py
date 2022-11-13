@@ -449,7 +449,7 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
     if mirror:
         print("Drawing mirrored")
         c.saveState()
-        c.translate(c._pagesize[0] , c._pagesize[1])
+        c.translate(c._pagesize[0], c._pagesize[1])
         c.rotate(180)
 
     print("text bottom is {}".format(text_bottom))

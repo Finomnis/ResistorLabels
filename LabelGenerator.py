@@ -106,7 +106,7 @@ EJ_RANGE_24 = PaperConfig(
 
 
 class StickerRect:
-    def __init__(self, layout: PaperConfig, row: int, column: int):
+    def __init__(self, layout: PaperConfig, row: int, column: int, mirror: bool, c: canvas.Canvas):
         self.left = layout.left_margin + layout.horizontal_stride * column
         self.bottom = layout.pagesize[1] - (
             layout.sticker_height + layout.top_margin + layout.vertical_stride * row
@@ -114,6 +114,26 @@ class StickerRect:
         self.width = layout.sticker_width
         self.height = layout.sticker_height
         self.corner = layout.sticker_corner_radius
+
+        self._mirror = mirror
+        self._c = c
+
+    def __enter__(self):
+
+        if self._mirror:
+            pagewidth = self._c._pagesize[0]
+            pageheight = self._c._pagesize[1]
+            self._c.saveState()
+            self._c.translate(pagewidth, pageheight)
+            self._c.rotate(180)
+            self.left = pagewidth - self.left - self.width
+            self.bottom = pageheight - self.bottom - self.height
+
+        return self
+
+    def __exit__(self, _type, _value, _traceback):
+        if self._mirror:
+            self._c.restoreState()
 
 
 class ResistorValue:
@@ -415,94 +435,83 @@ def get_eia98_code(value):
 
 
 def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, mirror=False):
-    rect = StickerRect(layout, row, column)
+    with StickerRect(layout, row, column, mirror, c) as rect:
+        # Squish horizontally by a bit, to prevent clipping
+        rect.width -= 0.1*inch
+        rect.left += 0.05*inch
 
-    # Squish horizontally by a bit, to prevent clipping
-    rect.width -= 0.1*inch
-    rect.left += 0.05*inch
+        # Draw middle line
+        if draw_center_line:
+            c.setStrokeColor(black, 0.25)
+            c.setLineWidth(0.7)
+            c.line(rect.left,
+                   rect.bottom + rect.height/2,
+                   rect.left + rect.width,
+                   rect.bottom + rect.height/2)
 
-    # Draw middle line
-    if draw_center_line:
-        c.setStrokeColor(black, 0.25)
-        c.setLineWidth(0.7)
-        c.line(rect.left,
-               rect.bottom + rect.height/2,
-               rect.left + rect.width,
-               rect.bottom + rect.height/2)
+        # Draw resistor value
+        resistor_value = ResistorValue(ohms)
+        print("Generating sticker '{}'".format(resistor_value.format_value()))
 
-    # Draw resistor value
-    resistor_value = ResistorValue(ohms)
-    print("Generating sticker '{}'".format(resistor_value.format_value()))
+        value_font_size = 0.25 * inch
+        ohm_font_size = 0.15 * inch
+        smd_font_size = 0.08 * inch
+        space_between = 5
 
-    value_font_size = 0.25 * inch
-    ohm_font_size = 0.15 * inch
-    smd_font_size = 0.08 * inch
-    space_between = 5
+        value_string = resistor_value.format_value()
+        ohm_string = "\u2126"
+        value_width = c.stringWidth(value_string, 'Arial Bold', value_font_size * 1.35)
+        ohm_width = c.stringWidth(ohm_string, 'Arial Bold', ohm_font_size * 1.35)
+        total_text_width = ohm_width + value_width + space_between
+        text_left = rect.left + rect.width/4 - total_text_width/2
+        text_bottom = rect.bottom + rect.height/4 - value_font_size/2
 
-    value_string = resistor_value.format_value()
-    ohm_string = "\u2126"
-    value_width = c.stringWidth(value_string, 'Arial Bold', value_font_size * 1.35)
-    ohm_width = c.stringWidth(ohm_string, 'Arial Bold', ohm_font_size * 1.35)
-    total_text_width = ohm_width + value_width + space_between
-    text_left = rect.left + rect.width/4 - total_text_width/2
-    text_bottom = rect.bottom + rect.height/4 - value_font_size/2
-    if mirror:
-        c.saveState()
-        c.translate(c._pagesize[0], c._pagesize[1])
-        c.rotate(180)
+        c.setFont('Arial Bold', value_font_size * 1.35)
+        c.drawString(text_left, text_bottom, value_string)
+        c.setFont('Arial Bold', ohm_font_size * 1.35)
+        c.drawString(text_left + value_width + space_between, text_bottom, ohm_string)
 
-    c.setFont('Arial Bold', value_font_size * 1.35)
-    c.drawString(text_left, text_bottom, value_string)
-    c.setFont('Arial Bold', ohm_font_size * 1.35)
-    c.drawString(text_left + value_width + space_between, text_bottom, ohm_string)
+        # Draw resistor color code
+        draw_resistor_colorcode(c, resistor_value,
+                                toColor("hsl(55, 54%, 100%)"), toColor("hsl(55, 54%, 70%)"),
+                                rect.left + rect.width/2,
+                                rect.bottom + rect.height/4 - rect.height/45,
+                                rect.width/4, rect.height/4,
+                                3)
 
-    # Draw resistor color code
-    draw_resistor_colorcode(c, resistor_value,
-                            toColor("hsl(55, 54%, 100%)"), toColor("hsl(55, 54%, 70%)"),
-                            rect.left + rect.width/2,
-                            rect.bottom + rect.height/4 - rect.height/45,
-                            rect.width/4, rect.height/4,
-                            3)
+        draw_resistor_colorcode(c, resistor_value,
+                                toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
+                                rect.left + rect.width * 0.75,
+                                rect.bottom + rect.height/4 - rect.height/45,
+                                rect.width/4, rect.height/4,
+                                4)
 
-    draw_resistor_colorcode(c, resistor_value,
-                            toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
-                            rect.left + rect.width * 0.75,
-                            rect.bottom + rect.height/4 - rect.height/45,
-                            rect.width/4, rect.height/4,
-                            4)
-
-    c.setFont('Arial Bold', smd_font_size * 1.35)
-    c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +
-                 rect.height/13, get_3digit_code(resistor_value))
-    c.drawCentredString(rect.left + rect.width*3/4, rect.bottom +
-                        rect.height/13, get_4digit_code(resistor_value))
-    c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom +
-                      rect.height/13, get_eia98_code(resistor_value))
-    if mirror:
-        c.restoreState()
+        c.setFont('Arial Bold', smd_font_size * 1.35)
+        c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +
+                     rect.height/13, get_3digit_code(resistor_value))
+        c.drawCentredString(rect.left + rect.width*3/4, rect.bottom +
+                            rect.height/13, get_4digit_code(resistor_value))
+        c.drawRightString(rect.left + rect.width - rect.width/32, rect.bottom +
+                          rect.height/13, get_eia98_code(resistor_value))
 
 
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
-    totalRows = len(values)
-    totalColumns = len(values[0])
-    emptyRows = 10 - totalRows  # TODO: remove hard coded 10 value, instead dynamically figure out max number of rows
-    print("emptyRows rows: {}".format(emptyRows))
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if value is None:
                 continue
-            draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
+            draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
             if mirror:
-                draw_resistor_sticker(c, layout, totalRows-1-rowId+emptyRows, totalColumns-1-columnId, value, False, True)
+                draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
 
 
 def render_outlines(c, layout: PaperConfig):
     for y in range(3):
         for x in range(10):
-            rect = StickerRect(layout, x, y)
-            c.setStrokeColor(black, 0.1)
-            c.setLineWidth(0)
-            c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
+            with StickerRect(layout, x, y, False, c) as rect:
+                c.setStrokeColor(black, 0.1)
+                c.setLineWidth(0)
+                c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
 
 
 def main():

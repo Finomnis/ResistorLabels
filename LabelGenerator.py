@@ -489,13 +489,15 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     totalRows = len(values)
     totalColumns = len(values[0])
+    emptyRows = 9 - totalRows #TODO: remove hard coded 9 value
+    print("emptyRows rows: {}".format(emptyRows))
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if value is None:
                 continue
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line)
             if mirror:
-                draw_resistor_sticker(c, layout, totalRows-1-rowId, totalColumns-1-columnId, value, draw_center_line, True)
+                draw_resistor_sticker(c, layout, totalRows-1-rowId+emptyRows, totalColumns-1-columnId, value, draw_center_line, True)
 
 
 def render_outlines(c, layout: PaperConfig):

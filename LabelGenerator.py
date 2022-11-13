@@ -488,7 +488,7 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
 def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
     totalRows = len(values)
     totalColumns = len(values[0])
-    emptyRows = 10 - totalRows #TODO: remove hard coded 10 value
+    emptyRows = 10 - totalRows #TODO: remove hard coded 10 value, instead dynamically figure out max number of rows
     print("emptyRows rows: {}".format(emptyRows))
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):

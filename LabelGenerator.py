@@ -10,9 +10,9 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 import math
 import sys
 
-from typing import Tuple, Union, Optional, List, TypeAlias
+from typing import Tuple, Union, Optional, List
 
-ResistorList: 'TypeAlias' = List[Union[Optional[float], List[Optional[float]]]]
+ResistorList = List[Union[Optional[float], List[Optional[float]]]]
 
 
 def load_font(font_name: str) -> None:

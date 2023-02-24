@@ -514,23 +514,6 @@ def render_outlines(c, layout: PaperConfig):
                 c.setLineWidth(0)
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
 
-                
-def make_pages(resistor_values, rows):
-    pages = []
-
-    counter = 0
-    buffer = []
-    for value_set in resistor_values:
-        buffer.append(value_set)
-        counter += 1
-        if counter == rows:
-            pages.append(buffer)
-            counter = 0
-            buffer = []
-
-    pages.append(buffer)
-
-    return pages
 
 def main():
 
@@ -564,26 +547,19 @@ def main():
         [9100000000,   9200000000,   3300000000],
     ]
 
-    pages = make_pages(resistor_values, 10)
+    # Create the render canvas
+    c = canvas.Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
-    index = 1
-    for resistor_values_page in pages:
-        file_name = "ResistorLabels-{}.pdf".format(index)
+    # Render the stickers
+    render_stickers(c, layout, resistor_values)
 
-        # Create the render canvas
-        c = canvas.Canvas(file_name, pagesize=layout.pagesize)
+    # # Add this if you want to see the outlines of the labels.
+    # # Recommended to be commented out for the actual printing.
+    # render_outlines(c, layout)
 
-        # Render the stickers
-        render_stickers(c, layout, resistor_values_page)
-
-        # # Add this if you want to see the outlines of the labels.
-        # # Recommended to be commented out for the actual printing.
-        # render_outlines(c, layout)
-
-        # Store canvas to PDF file
-        c.showPage()
-        c.save()
-        index += 1
+    # Store canvas to PDF file
+    c.showPage()
+    c.save()
 
 
 if __name__ == "__main__":

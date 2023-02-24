@@ -10,7 +10,9 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 import math
 import sys
 
-from typing import Tuple, Union, Optional, List
+from typing import Tuple, Union, Optional, List, TypeAlias
+
+ResistorList: TypeAlias = List[Union[Optional[float], List[Optional[float]]]]
 
 
 def load_font(font_name: str) -> None:
@@ -521,14 +523,22 @@ def draw_resistor_sticker(
                           rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c: Canvas, layout: PaperConfig, values: List[object], draw_center_line: bool = True) -> None:
-    # Flatten
-    values_flat: List[Union[float, None]] = [item for sublist in values for item in sublist]
+def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_center_line: bool = True) -> None:
+    def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
+        if isinstance(elem, list):
+            return elem
+        else:
+            return [elem]
 
-    for (rowId, row) in enumerate(values):
-        for (columnId, value) in enumerate(row):
-            if value is None:
-                continue
+    # Flatten
+    values_flat: List[Optional[float]] = [elem for nested in values for elem in flatten(nested)]
+
+    # Draw stickers
+    for (position, value) in enumerate(values_flat):
+        rowId = position // 3
+        columnId = position % 3
+
+        if value is not None:
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
             if mirror:
                 draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
@@ -562,7 +572,7 @@ def main() -> None:
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
-    resistor_values = [
+    resistor_values: ResistorList = [
         [0,            0.02,         .1],
         [1,            12,           13],
         [210,          220,          330],

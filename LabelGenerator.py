@@ -12,7 +12,7 @@ import sys
 
 from typing import Tuple, Union, Optional, List, TypeAlias
 
-ResistorList: TypeAlias = List[Union[Optional[float], List[Optional[float]]]]
+ResistorList: 'TypeAlias' = List[Union[Optional[float], List[Optional[float]]]]
 
 
 def load_font(font_name: str) -> None:

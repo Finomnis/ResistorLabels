@@ -60,6 +60,8 @@ class PaperConfig:
         top_margin: float,
         horizontal_stride: float,
         vertical_stride: float,
+        num_stickers_horizontal: int,
+        num_stickers_vertical: int,
     ) -> None:
         self.pagesize = pagesize
         self.sticker_width = sticker_width
@@ -69,6 +71,8 @@ class PaperConfig:
         self.top_margin = top_margin
         self.horizontal_stride = horizontal_stride
         self.vertical_stride = vertical_stride
+        self.num_stickers_horizontal = num_stickers_horizontal
+        self.num_stickers_vertical = num_stickers_vertical
 
 
 AVERY_5260 = PaperConfig(
@@ -80,6 +84,8 @@ AVERY_5260 = PaperConfig(
     top_margin=0.5 * inch,
     horizontal_stride=(2 + 6/8) * inch,
     vertical_stride=1 * inch,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=10,
 )
 
 
@@ -92,6 +98,8 @@ AVERY_L7157 = PaperConfig(
     top_margin=14.1 * mm,
     horizontal_stride=66.552 * mm,
     vertical_stride=24.3 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=11,
 )
 
 
@@ -104,6 +112,8 @@ EJ_RANGE_24 = PaperConfig(
     top_margin=13.2 * mm,
     horizontal_stride=66.45 * mm,
     vertical_stride=33.9 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=8,
 )
 
 
@@ -545,9 +555,9 @@ def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_c
 
 
 def render_outlines(c: Canvas, layout: PaperConfig) -> None:
-    for y in range(3):
-        for x in range(10):
-            with StickerRect(c, layout, x, y, False) as rect:
+    for row in range(layout.num_stickers_vertical):
+        for column in range(layout.num_stickers_horizontal):
+            with StickerRect(c, layout, row, column, False) as rect:
                 c.setStrokeColor(black, 0.1)
                 c.setLineWidth(0)
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)

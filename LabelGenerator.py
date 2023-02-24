@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from reportlab.pdfgen import canvas
+from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.pagesizes import A4, LETTER
 from reportlab.lib.units import inch, mm
 from reportlab.pdfbase import pdfmetrics
@@ -10,10 +10,10 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 import math
 import sys
 
-from typing import Tuple
+from typing import Tuple, Union, Optional, List
 
 
-def load_font(font_name: str):
+def load_font(font_name: str) -> None:
     pdfmetrics.registerFont(TTFont('Arial Bold', font_name))
     print("Using font '{}' ...".format(font_name))
 
@@ -106,7 +106,7 @@ EJ_RANGE_24 = PaperConfig(
 
 
 class StickerRect:
-    def __init__(self, c: canvas.Canvas, layout: PaperConfig, row: int, column: int, mirror: bool = True):
+    def __init__(self, c: Canvas, layout: PaperConfig, row: int, column: int, mirror: bool = True):
         self.left = layout.left_margin + layout.horizontal_stride * column
         self.bottom = layout.pagesize[1] - (
             layout.sticker_height + layout.top_margin + layout.vertical_stride * row
@@ -118,7 +118,7 @@ class StickerRect:
         self._mirror = mirror
         self._c = c
 
-    def __enter__(self):
+    def __enter__(self) -> "StickerRect":
 
         if self._mirror:
             pagewidth = self._c._pagesize[0]
@@ -131,13 +131,13 @@ class StickerRect:
 
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, _type: object, _value: object, _traceback: object) -> None:
         if self._mirror:
             self._c.restoreState()
 
 
 class ResistorValue:
-    def __init__(self, ohms):
+    def __init__(self, ohms: float):
         ohms_exp = 0
         ohms_val = 0
 
@@ -155,10 +155,10 @@ class ResistorValue:
 
         # print(self.ohms_val, self.ohms_exp, self.format_value(), self.get_value())
 
-    def get_value(self):
+    def get_value(self) -> float:
         return self.ohms_val * math.pow(10, self.ohms_exp - 2)
 
-    def get_prefix(self):
+    def get_prefix(self) -> str:
         if self.ohms_exp >= 12:
             return "T"
         if self.ohms_exp >= 9:
@@ -175,7 +175,7 @@ class ResistorValue:
             return "\u03BC"
         return "n"
 
-    def get_prefixed_number(self):
+    def get_prefixed_number(self) -> str:
         if self.ohms_exp % 3 == 0:
             if self.ohms_val % 100 == 0:
                 return str(self.ohms_val // 100)
@@ -191,7 +191,7 @@ class ResistorValue:
         else:
             return str(self.ohms_val)
 
-    def format_value(self):
+    def format_value(self) -> str:
 
         if self.ohms_exp < 0:
             rendered_num = str(self.ohms_val)
@@ -207,7 +207,7 @@ class ResistorValue:
         return self.get_prefixed_number() + self.get_prefix()
 
 
-def resistor_color_table(num):
+def resistor_color_table(num: int) -> HexColor:
     return [
         HexColor("#000000"),
         HexColor("#994d00"),
@@ -222,7 +222,14 @@ def resistor_color_table(num):
     ][num]
 
 
-def draw_fancy_resistor_stripe(c, x, y, width, height, color_table):
+def draw_fancy_resistor_stripe(
+    c: Canvas,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    color_table: List[HexColor]
+) -> None:
     c.setFillColor(color_table[2])
     c.rect(x, y+height*5/6, width, height/6, fill=1, stroke=0)
     c.setFillColor(color_table[1])
@@ -237,7 +244,7 @@ def draw_fancy_resistor_stripe(c, x, y, width, height, color_table):
     c.rect(x, y+height*0/6, width, height/6, fill=1, stroke=0)
 
 
-def draw_resistor_stripe(c, x, y, width, height, stripe_value):
+def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: float, stripe_value: int) -> None:
 
     if 0 <= stripe_value <= 9:
         c.setFillColor(resistor_color_table(stripe_value))
@@ -277,7 +284,17 @@ def draw_resistor_stripe(c, x, y, width, height, stripe_value):
         return
 
 
-def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_codes):
+def draw_resistor_colorcode(
+        c: Canvas,
+        value: ResistorValue,
+        color1: object,
+        color2: object,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        num_codes: int
+) -> None:
 
     if value.ohms_exp < num_codes - 4:
         return
@@ -333,7 +350,7 @@ def draw_resistor_colorcode(c, value, color1, color2, x, y, width, height, num_c
     c.roundRect(x+border, y+border, width-2*border, height-2*border, corner)
 
 
-def get_3digit_code(value):
+def get_3digit_code(value: ResistorValue) -> str:
     if value.ohms_val % 10 != 0:
         return ""
 
@@ -360,7 +377,7 @@ def get_3digit_code(value):
     return ""
 
 
-def get_4digit_code(value):
+def get_4digit_code(value: ResistorValue) -> str:
     digits = str(value.ohms_val)
 
     if value.ohms_val == 0:
@@ -392,7 +409,7 @@ def get_4digit_code(value):
     return ""
 
 
-def get_eia98_code(value):
+def get_eia98_code(value: ResistorValue) -> str:
     eia98_coding_table = {
         100: "01", 178: "25", 316: "49", 562: "73",
         102: "02", 182: "26", 324: "50", 576: "74",
@@ -434,7 +451,15 @@ def get_eia98_code(value):
     return digits + multiplier
 
 
-def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, mirror=False):
+def draw_resistor_sticker(
+        c: Canvas,
+        layout: PaperConfig,
+        row: int,
+        column: int,
+        ohms: float,
+        draw_center_line: bool = True,
+        mirror: bool = False
+) -> None:
     with StickerRect(c, layout, row, column, mirror) as rect:
 
         # Squish horizontally by a bit, to prevent clipping
@@ -496,7 +521,10 @@ def draw_resistor_sticker(c, layout, row, column, ohms, draw_center_line=True, m
                           rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
+def render_stickers(c: Canvas, layout: PaperConfig, values: List[object], draw_center_line: bool = True) -> None:
+    # Flatten
+    values_flat: List[Union[float, None]] = [item for sublist in values for item in sublist]
+
     for (rowId, row) in enumerate(values):
         for (columnId, value) in enumerate(row):
             if value is None:
@@ -506,7 +534,7 @@ def render_stickers(c, layout: PaperConfig, values, draw_center_line=True):
                 draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
 
 
-def render_outlines(c, layout: PaperConfig):
+def render_outlines(c: Canvas, layout: PaperConfig) -> None:
     for y in range(3):
         for x in range(10):
             with StickerRect(c, layout, x, y, False) as rect:
@@ -515,7 +543,7 @@ def render_outlines(c, layout: PaperConfig):
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
 
 
-def main():
+def main() -> None:
 
     # ############################################################################
     # Select the correct type of paper you want to print on.
@@ -548,7 +576,7 @@ def main():
     ]
 
     # Create the render canvas
-    c = canvas.Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
+    c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
     render_stickers(c, layout, resistor_values)

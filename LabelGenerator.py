@@ -52,6 +52,7 @@ else:
 class PaperConfig:
     def __init__(
         self,
+        paper_name: str,
         pagesize: Tuple[float, float],
         sticker_width: float,
         sticker_height: float,
@@ -63,6 +64,7 @@ class PaperConfig:
         num_stickers_horizontal: int,
         num_stickers_vertical: int,
     ) -> None:
+        self.paper_name = paper_name
         self.pagesize = pagesize
         self.sticker_width = sticker_width
         self.sticker_height = sticker_height
@@ -76,6 +78,7 @@ class PaperConfig:
 
 
 AVERY_5260 = PaperConfig(
+    paper_name="Avery 5260",
     pagesize=LETTER,
     sticker_width=(2 + 5/8) * inch,
     sticker_height=1 * inch,
@@ -90,6 +93,7 @@ AVERY_5260 = PaperConfig(
 
 
 AVERY_L7157 = PaperConfig(
+    paper_name="Avery L7157",
     pagesize=A4,
     sticker_width=64 * mm,
     sticker_height=24.3 * mm,
@@ -104,6 +108,7 @@ AVERY_L7157 = PaperConfig(
 
 
 EJ_RANGE_24 = PaperConfig(
+    paper_name="EJRange 24",
     pagesize=A4,
     sticker_width=63.5 * mm,
     sticker_height=33.9 * mm,
@@ -542,6 +547,8 @@ def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_c
 
     # Flatten
     values_flat: List[Optional[float]] = [elem for nested in values for elem in flatten(nested)]
+
+    c.setTitle(f"Resistor Labels - {layout.paper_name}")
 
     # Draw stickers
     for (position, value) in enumerate(values_flat):

@@ -535,9 +535,6 @@ def draw_resistor_sticker(
 
 
 def begin_page(c: Canvas, layout: PaperConfig, draw_outlines: bool) -> None:
-    # Set the title
-    c.setTitle(f"Resistor Labels - {layout.paper_name}")
-
     # Draw the outlines of the stickers. Not recommended for the actual print.
     if draw_outlines:
         render_outlines(c, layout)
@@ -563,6 +560,9 @@ def render_stickers(
 
     # Flatten
     values_flat: List[Optional[float]] = [elem for nested in values for elem in flatten(nested)]
+
+    # Set the title
+    c.setTitle(f"Resistor Labels - {layout.paper_name}")
 
     # Begin the first page
     begin_page(c, layout, draw_outlines)

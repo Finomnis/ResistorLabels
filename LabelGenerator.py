@@ -20,10 +20,6 @@ def load_font(font_name: str) -> None:
     print("Using font '{}' ...".format(font_name))
 
 
-mirror = False
-if "--mirror" in sys.argv:
-    mirror = True
-
 if "--roboto" in sys.argv:
     try:
         load_font('Roboto-Bold.ttf')
@@ -556,7 +552,8 @@ def render_stickers(
     layout: PaperConfig,
     values: ResistorList,
     draw_outlines: bool = False,
-    draw_center_line: bool = True
+    draw_center_line: bool = True,
+    draw_both_sides: bool = False
 ) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
@@ -581,7 +578,7 @@ def render_stickers(
 
         if value is not None:
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
-            if mirror:
+            if draw_both_sides:
                 draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
 
     # End the page one final time
@@ -630,7 +627,7 @@ def main() -> None:
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values, draw_outlines=False)
+    render_stickers(c, layout, resistor_values, draw_outlines=False, draw_both_sides=False)
 
     # Store canvas to PDF file
     c.save()

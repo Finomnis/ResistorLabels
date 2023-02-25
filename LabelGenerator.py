@@ -538,7 +538,26 @@ def draw_resistor_sticker(
                           rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_center_line: bool = True) -> None:
+def begin_page(c: Canvas, layout: PaperConfig, draw_outlines: bool) -> None:
+    # Set the title
+    c.setTitle(f"Resistor Labels - {layout.paper_name}")
+
+    # Draw the outlines of the stickers. Not recommended for the actual print.
+    if draw_outlines:
+        render_outlines(c, layout)
+
+
+def end_page(c: Canvas) -> None:
+    c.showPage()
+
+
+def render_stickers(
+    c: Canvas,
+    layout: PaperConfig,
+    values: ResistorList,
+    draw_outlines: bool = False,
+    draw_center_line: bool = True
+) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
             return elem
@@ -548,17 +567,25 @@ def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_c
     # Flatten
     values_flat: List[Optional[float]] = [elem for nested in values for elem in flatten(nested)]
 
-    c.setTitle(f"Resistor Labels - {layout.paper_name}")
+    # Begin the first page
+    begin_page(c, layout, draw_outlines)
 
-    # Draw stickers
     for (position, value) in enumerate(values_flat):
-        rowId = position // 3
-        columnId = position % 3
+        rowId = (position // layout.num_stickers_horizontal) % layout.num_stickers_vertical
+        columnId = position % layout.num_stickers_horizontal
+
+        # If we are at the first sticker of a new page, change the page
+        if rowId == 0 and columnId == 0 and position != 0:
+            end_page(c)
+            begin_page(c, layout, draw_outlines)
 
         if value is not None:
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
             if mirror:
                 draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
+
+    # End the page one final time
+    end_page(c)
 
 
 def render_outlines(c: Canvas, layout: PaperConfig) -> None:
@@ -582,10 +609,7 @@ def main() -> None:
     # ############################################################################
     # Put your own resistor values in here!
     #
-    # This has to be a grid of:
-    #  - 10*3 values for Avery 5260
-    #  - 11*3 for Avery L7157.
-    #  - 8*3 for EJ Range 24
+    # This has to be either a 2D grid or a 1D array.
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
@@ -606,14 +630,9 @@ def main() -> None:
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values)
-
-    # # Add this if you want to see the outlines of the labels.
-    # # Recommended to be commented out for the actual printing.
-    # render_outlines(c, layout)
+    render_stickers(c, layout, resistor_values, draw_outlines=False)
 
     # Store canvas to PDF file
-    c.showPage()
     c.save()
 
 

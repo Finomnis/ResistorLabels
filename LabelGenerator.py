@@ -119,7 +119,7 @@ EJ_RANGE_24 = PaperConfig(
 
 
 class StickerRect:
-    def __init__(self, c: Canvas, layout: PaperConfig, row: int, column: int, mirror: bool = True):
+    def __init__(self, c: Canvas, layout: PaperConfig, row: int, column: int, mirror: bool):
         self.left = layout.left_margin + layout.horizontal_stride * column
         self.bottom = layout.pagesize[1] - (
             layout.sticker_height + layout.top_margin + layout.vertical_stride * row
@@ -470,8 +470,8 @@ def draw_resistor_sticker(
         row: int,
         column: int,
         ohms: float,
-        draw_center_line: bool = True,
-        mirror: bool = False
+        draw_center_line: bool,
+        mirror: bool
 ) -> None:
     with StickerRect(c, layout, row, column, mirror) as rect:
 

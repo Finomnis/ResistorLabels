@@ -20,10 +20,6 @@ def load_font(font_name: str) -> None:
     print("Using font '{}' ...".format(font_name))
 
 
-mirror = False
-if "--mirror" in sys.argv:
-    mirror = True
-
 if "--roboto" in sys.argv:
     try:
         load_font('Roboto-Bold.ttf')
@@ -52,6 +48,7 @@ else:
 class PaperConfig:
     def __init__(
         self,
+        paper_name: str,
         pagesize: Tuple[float, float],
         sticker_width: float,
         sticker_height: float,
@@ -60,7 +57,10 @@ class PaperConfig:
         top_margin: float,
         horizontal_stride: float,
         vertical_stride: float,
+        num_stickers_horizontal: int,
+        num_stickers_vertical: int,
     ) -> None:
+        self.paper_name = paper_name
         self.pagesize = pagesize
         self.sticker_width = sticker_width
         self.sticker_height = sticker_height
@@ -69,9 +69,12 @@ class PaperConfig:
         self.top_margin = top_margin
         self.horizontal_stride = horizontal_stride
         self.vertical_stride = vertical_stride
+        self.num_stickers_horizontal = num_stickers_horizontal
+        self.num_stickers_vertical = num_stickers_vertical
 
 
 AVERY_5260 = PaperConfig(
+    paper_name="Avery 5260",
     pagesize=LETTER,
     sticker_width=(2 + 5/8) * inch,
     sticker_height=1 * inch,
@@ -80,10 +83,13 @@ AVERY_5260 = PaperConfig(
     top_margin=0.5 * inch,
     horizontal_stride=(2 + 6/8) * inch,
     vertical_stride=1 * inch,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=10,
 )
 
 
 AVERY_L7157 = PaperConfig(
+    paper_name="Avery L7157",
     pagesize=A4,
     sticker_width=64 * mm,
     sticker_height=24.3 * mm,
@@ -92,10 +98,13 @@ AVERY_L7157 = PaperConfig(
     top_margin=14.1 * mm,
     horizontal_stride=66.552 * mm,
     vertical_stride=24.3 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=11,
 )
 
 
 EJ_RANGE_24 = PaperConfig(
+    paper_name="EJRange 24",
     pagesize=A4,
     sticker_width=63.5 * mm,
     sticker_height=33.9 * mm,
@@ -104,6 +113,8 @@ EJ_RANGE_24 = PaperConfig(
     top_margin=13.2 * mm,
     horizontal_stride=66.45 * mm,
     vertical_stride=33.9 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=8,
 )
 
 
@@ -523,7 +534,24 @@ def draw_resistor_sticker(
                           rect.height/13, get_eia98_code(resistor_value))
 
 
-def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_center_line: bool = True) -> None:
+def begin_page(c: Canvas, layout: PaperConfig, draw_outlines: bool) -> None:
+    # Draw the outlines of the stickers. Not recommended for the actual print.
+    if draw_outlines:
+        render_outlines(c, layout)
+
+
+def end_page(c: Canvas) -> None:
+    c.showPage()
+
+
+def render_stickers(
+    c: Canvas,
+    layout: PaperConfig,
+    values: ResistorList,
+    draw_outlines: bool = False,
+    draw_center_line: bool = True,
+    draw_both_sides: bool = False
+) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
             return elem
@@ -533,21 +561,34 @@ def render_stickers(c: Canvas, layout: PaperConfig, values: ResistorList, draw_c
     # Flatten
     values_flat: List[Optional[float]] = [elem for nested in values for elem in flatten(nested)]
 
-    # Draw stickers
+    # Set the title
+    c.setTitle(f"Resistor Labels - {layout.paper_name}")
+
+    # Begin the first page
+    begin_page(c, layout, draw_outlines)
+
     for (position, value) in enumerate(values_flat):
-        rowId = position // 3
-        columnId = position % 3
+        rowId = (position // layout.num_stickers_horizontal) % layout.num_stickers_vertical
+        columnId = position % layout.num_stickers_horizontal
+
+        # If we are at the first sticker of a new page, change the page
+        if rowId == 0 and columnId == 0 and position != 0:
+            end_page(c)
+            begin_page(c, layout, draw_outlines)
 
         if value is not None:
             draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
-            if mirror:
+            if draw_both_sides:
                 draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
+
+    # End the page one final time
+    end_page(c)
 
 
 def render_outlines(c: Canvas, layout: PaperConfig) -> None:
-    for y in range(3):
-        for x in range(10):
-            with StickerRect(c, layout, x, y, False) as rect:
+    for row in range(layout.num_stickers_vertical):
+        for column in range(layout.num_stickers_horizontal):
+            with StickerRect(c, layout, row, column, False) as rect:
                 c.setStrokeColor(black, 0.1)
                 c.setLineWidth(0)
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
@@ -565,10 +606,7 @@ def main() -> None:
     # ############################################################################
     # Put your own resistor values in here!
     #
-    # This has to be a grid of:
-    #  - 10*3 values for Avery 5260
-    #  - 11*3 for Avery L7157.
-    #  - 8*3 for EJ Range 24
+    # This has to be either a 2D grid or a 1D array.
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
@@ -589,14 +627,9 @@ def main() -> None:
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values)
-
-    # # Add this if you want to see the outlines of the labels.
-    # # Recommended to be commented out for the actual printing.
-    # render_outlines(c, layout)
+    render_stickers(c, layout, resistor_values, draw_outlines=False, draw_both_sides=False)
 
     # Store canvas to PDF file
-    c.showPage()
     c.save()
 
 

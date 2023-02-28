@@ -629,7 +629,7 @@ def main() -> None:
     # Change the following options as you desire.
     # ############################################################################
 
-    # Enables drawing the Resistor values on both sides of the sticker,
+    # Enables drawing the resistor values on both sides of the sticker,
     # so that the finished resistor plastic bags are labeled on both sides.
     draw_both_sides = False
 
@@ -638,7 +638,7 @@ def main() -> None:
     draw_center_line = True
 
     # Draw the outlines of the stickers.
-    # This is mostly a debugging option and should most likely not be enabled
+    # This is primarily a debugging option and should most likely not be enabled
     # for the actual printing.
     draw_outlines = False
 

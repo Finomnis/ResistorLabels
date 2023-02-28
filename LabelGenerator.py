@@ -548,9 +548,9 @@ def render_stickers(
     c: Canvas,
     layout: PaperConfig,
     values: ResistorList,
-    draw_outlines: bool = False,
-    draw_center_line: bool = True,
-    draw_both_sides: bool = False
+    draw_outlines: bool,
+    draw_center_line: bool,
+    draw_both_sides: bool
 ) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
@@ -623,11 +623,37 @@ def main() -> None:
         [9100000000,   9200000000,   3300000000],
     ]
 
+    # ############################################################################
+    # Further configuration options
+    #
+    # Change the following options as you desire.
+    # ############################################################################
+
+    # Enables drawing the resistor values on the other side of the sticker fold line
+    # as well, so that the finished resistor plastic bags are labeled on both sides.
+    draw_both_sides = False
+
+    # Draws the line where the stickers should be folded.
+    # Disable this if you don't like the line.
+    draw_center_line = True
+
+    # Draw the outlines of the stickers.
+    # This is primarily a debugging option and should most likely not be enabled
+    # for the actual printing.
+    draw_outlines = False
+
+    # ############################################################################
+    # PDF generation
+    #
+    # The following is the actual functionality of this script - to generate
+    # the ResistorLabels PDF file.
+    # ############################################################################
+
     # Create the render canvas
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values, draw_outlines=False, draw_both_sides=False)
+    render_stickers(c, layout, resistor_values, draw_outlines, draw_center_line, draw_both_sides)
 
     # Store canvas to PDF file
     c.save()

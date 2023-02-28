@@ -548,9 +548,9 @@ def render_stickers(
     c: Canvas,
     layout: PaperConfig,
     values: ResistorList,
-    draw_outlines: bool = False,
-    draw_center_line: bool = True,
-    draw_both_sides: bool = False
+    draw_outlines: bool,
+    draw_center_line: bool,
+    draw_both_sides: bool
 ) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):

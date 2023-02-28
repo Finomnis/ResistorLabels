@@ -629,8 +629,8 @@ def main() -> None:
     # Change the following options as you desire.
     # ############################################################################
 
-    # Enables drawing the resistor values on both sides of the sticker,
-    # so that the finished resistor plastic bags are labeled on both sides.
+    # Enables drawing the resistor values on the other side of the sticker fold line
+    # as well, so that the finished resistor plastic bags are labeled on both sides.
     draw_both_sides = False
 
     # Draws the line where the stickers should be folded.

@@ -223,7 +223,7 @@ class ResistorValue:
 def resistor_color_table(num: int) -> HexColor:
     return [
         HexColor("#000000"),
-        HexColor("#964B00"),
+        HexColor("#7C4700"),
         HexColor("#FF0000"),
         HexColor("#FFA500"),
         HexColor("#FFFF00"),

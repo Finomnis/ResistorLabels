@@ -223,7 +223,7 @@ class ResistorValue:
 def resistor_color_table(num: int) -> HexColor:
     return [
         HexColor("#000000"),
-        HexColor("#7C4700"),
+        HexColor("#633800"),
         HexColor("#FF0000"),
         HexColor("#FFA500"),
         HexColor("#FFFF00"),
@@ -259,7 +259,7 @@ def draw_fancy_resistor_stripe(
 def draw_resistor_stripe_border(c: Canvas, x: float, y: float, width: float, height: float) -> None:
     c.setLineWidth(0.3)
     c.setFillColor(black, 0.0)
-    c.setStrokeColorRGB(0.5, 0.5, 0.5, 0.5)
+    c.setStrokeColorRGB(0.2, 0.2, 0.2, 0.5)
     c.rect(x, y, width, height, fill=0, stroke=1)
 
 

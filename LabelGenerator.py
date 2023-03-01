@@ -223,14 +223,14 @@ class ResistorValue:
 def resistor_color_table(num: int) -> HexColor:
     return [
         HexColor("#000000"),
-        HexColor("#994d00"),
+        HexColor("#964B00"),
         HexColor("#FF0000"),
-        HexColor("#FF9900"),
+        HexColor("#FFA500"),
         HexColor("#FFFF00"),
         HexColor("#00FF00"),
         HexColor("#0000FF"),
-        HexColor("#FF00FF"),
-        HexColor("#CCCCCC"),
+        HexColor("#8F00FF"),
+        HexColor("#808080"),
         HexColor("#FFFFFF"),
     ][num]
 
@@ -266,10 +266,10 @@ def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: fl
 
     elif stripe_value == -1:
         gold_table = [
-            HexColor("#fefefe"),
-            HexColor("#f7febe"),
-            HexColor("#effe41"),
-            HexColor("#c5d24f"),
+            HexColor("#FFED8A"),
+            HexColor("#FFE55C"),
+            HexColor("#FFD700"),
+            HexColor("#D1B000"),
         ]
 
         draw_fancy_resistor_stripe(c, x, y, width, height, gold_table)
@@ -277,10 +277,10 @@ def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: fl
 
     elif stripe_value == -2:
         silver_table = [
-            HexColor("#fefefe"),
-            HexColor("#e0e0e0"),
-            HexColor("#cdcdcd"),
-            HexColor("#b5b5b5"),
+            HexColor("#D0D0D0"),
+            HexColor("#A9A9A9"),
+            HexColor("#929292"),
+            HexColor("#7B7B7B"),
         ]
 
         draw_fancy_resistor_stripe(c, x, y, width, height, silver_table)

@@ -229,7 +229,7 @@ def resistor_color_table(num: int) -> HexColor:
         HexColor("#FFFF00"),
         HexColor("#00FF00"),
         HexColor("#0000FF"),
-        HexColor("#C576F6"),
+        HexColor("#C520F6"),
         HexColor("#808080"),
         HexColor("#FFFFFF"),
     ][num]

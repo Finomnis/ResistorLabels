@@ -633,13 +633,28 @@ def main() -> None:
     # ############################################################################
     # Put your own resistor values in here!
     #
-    # This has to be either a 2D grid or a 1D array. The E12, E24, and E24_ALL
-    # constants can be passed to the generate_decades function to create typical
-    # resistor value sets.
+    # This has to be either a 2D grid or a 1D array.
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
-    resistor_values: ResistorList = [0] + generate_decades(E24, 0, 6) + [ 1000000, None, 2000000 ]
+    resistor_values: ResistorList = [
+        [0,            0.02,         .1],
+        [1,            12,           13],
+        [210,          220,          330],
+        [3100,         3200,         3300],
+        [41000,        42000,        43000],
+        [510000,       None,         530000],
+        [6100000,      6200000,      6300000],
+        [71000000,     72000000,     73000000],
+        [810000000,    820000000,    830000000],
+        [9100000000,   9200000000,   3300000000],
+    ]
+
+    # ############################################################################
+    # Alternatively, The E12, E24, and E24_ALL constants can be passed to the 
+    # generate_decades function to create typical resistor value sets.
+    # ############################################################################
+    # resistor_values: ResistorList = [ 0, 0.01 ] + generate_decades(E24, 0, 6)
 
     # ############################################################################
     # Further configuration options

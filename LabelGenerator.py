@@ -117,6 +117,11 @@ EJ_RANGE_24 = PaperConfig(
     num_stickers_vertical=8,
 )
 
+E12 = [ 1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2 ]
+
+# 1.1, 1.3, and 1.6 are commonly ommitted from the resistor E24 series
+E24 = [ 1.0, 1.2, 1.5, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1]
+E24_ALL = [ 1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1 ]
 
 class StickerRect:
     def __init__(self, c: Canvas, layout: PaperConfig, row: int, column: int, mirror: bool):
@@ -602,6 +607,19 @@ def render_outlines(c: Canvas, layout: PaperConfig) -> None:
                 c.setLineWidth(0)
                 c.roundRect(rect.left, rect.bottom, rect.width, rect.height, rect.corner)
 
+def generate_decade(
+        series: List[float], # the base series of resistor values
+        power: int           # the power of 10 to scale the series by
+) -> List[float]:
+    scalar = 10 ** power
+    return [scalar * x for x in series]
+
+def generate_decades(
+        series: List[float],
+        first_decade: int,
+        last_decade: int
+) -> ResistorList:
+    return [generate_decade(series, x) for x in range(first_decade, last_decade)]
 
 def main() -> None:
 
@@ -615,22 +633,13 @@ def main() -> None:
     # ############################################################################
     # Put your own resistor values in here!
     #
-    # This has to be either a 2D grid or a 1D array.
+    # This has to be either a 2D grid or a 1D array. The E12, E24, and E24_ALL
+    # constants can be passed to the generate_decades function to create typical
+    # resistor value sets.
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
-    resistor_values: ResistorList = [
-        [0,            0.02,         .1],
-        [1,            12,           13],
-        [210,          220,          330],
-        [3100,         3200,         3300],
-        [41000,        42000,        43000],
-        [510000,       None,         530000],
-        [6100000,      6200000,      6300000],
-        [71000000,     72000000,     73000000],
-        [810000000,    820000000,    830000000],
-        [9100000000,   9200000000,   3300000000],
-    ]
+    resistor_values: ResistorList = [0] + generate_decades(E24, 0, 6) + [ 1000000, None, 2000000 ]
 
     # ############################################################################
     # Further configuration options

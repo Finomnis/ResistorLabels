@@ -650,7 +650,7 @@ def generate_values(
         series: List[float],  # the base series of resistor values
         first_power: int,     # the first power of 10 to scale the series by
         last_power: int       # the last power of 10 to scale the series by
-) -> List[list[float]]:
+) -> List[List[float]]:
     return [scale_values(series, x) for x in range(first_power, last_power)]
 
 

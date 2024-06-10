@@ -10,6 +10,7 @@ The generated labels include:
 -   4- and 5-band color codes
 -   3- and 4-digit smd codes
 -   EIA-96 smd code
+-   Tolerance color band
 
 <img src="Example.svg">
 

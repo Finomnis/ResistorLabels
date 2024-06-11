@@ -10,7 +10,7 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 import math
 import sys
 
-from typing import Tuple, Union, Optional, List
+from typing import Tuple, Union, Optional, List, Mapping
 
 ResistorList = List[Union[Optional[float], List[Optional[float]]]]
 
@@ -222,17 +222,31 @@ class ResistorValue:
 
 def resistor_color_table(num: int) -> HexColor:
     return [
-        HexColor("#000000"), # black
-        HexColor("#964B00"), # brown
-        HexColor("#FF3030"), # red
-        HexColor("#FFA500"), # orange
-        HexColor("#FFFF00"), # yellow
-        HexColor("#00FF00"), # green
-        HexColor("#0000FF"), # blue
-        HexColor("#C520F6"), # purple
-        HexColor("#808080"), # grey
-        HexColor("#FFFFFF"), # white
+        HexColor("#000000"),  # black
+        HexColor("#964B00"),  # brown
+        HexColor("#FF3030"),  # red
+        HexColor("#FFA500"),  # orange
+        HexColor("#FFFF00"),  # yellow
+        HexColor("#00FF00"),  # green
+        HexColor("#0000FF"),  # blue
+        HexColor("#C520F6"),  # violet
+        HexColor("#808080"),  # grey
+        HexColor("#FFFFFF"),  # white
     ][num]
+
+
+def tolerance_color_table(tolerance_value: Optional[float]) -> int:
+    tolerance_colors: Mapping[Optional[float], int] = {
+        1: 1,  # brown
+        2: 2,  # red
+        0.5: 5,  # green
+        0.25: 6,  # blue
+        0.1: 7,  # violet
+        5: -1,  # gold
+        10: -2,  # silver
+    }
+
+    return tolerance_colors.get(tolerance_value, -3)
 
 
 def draw_fancy_resistor_stripe(
@@ -264,7 +278,7 @@ def draw_resistor_stripe_border(c: Canvas, x: float, y: float, width: float, hei
     c.rect(x, y, width, height, fill=0, stroke=1)
 
 
-def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: float, stripe_value: int, tolerance_color = "grey") -> None:
+def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: float, stripe_value: int) -> None:
     if 0 <= stripe_value <= 9:
         c.setFillColor(resistor_color_table(stripe_value))
         c.rect(x, y, width, height, fill=1, stroke=0)
@@ -298,12 +312,11 @@ def draw_resistor_stripe(c: Canvas, x: float, y: float, width: float, height: fl
     else:
 
         c.setLineWidth(0.5)
-        #c.setFillColor(tolerance_color, 0.3)
-        c.setFillColor(tolerance_color, 1)
+        c.setFillColor(gray, 0.3)
         c.setStrokeColorRGB(0.5, 0.5, 0.5, 1.0)
-        c.rect(x, y, width, height, fill=1, stroke=0)
-        #c.line(x, y, x + width, y + height)
-        #c.line(x + width, y, x, y + height)
+        c.rect(x, y, width, height, fill=1, stroke=1)
+        c.line(x, y, x + width, y + height)
+        c.line(x + width, y, x, y + height)
         return
 
 
@@ -317,18 +330,8 @@ def draw_resistor_colorcode(
         width: float,
         height: float,
         num_codes: int,
-        tolerance_value: int,
+        tolerance_value: Optional[float],
 ) -> None:
-
-    tolerance_color_table = {1:    HexColor("#964B00"), # "brown"
-                             2:    HexColor("#FF3030"), # "red",
-                             0.5:  HexColor("#00FF00"), # "green"
-                             0.25: HexColor("#0000FF"), # "blue",
-                             0.1:  "violet",
-                             5:    "gold",
-                             10:   "silver"}
-    tolerance_color = tolerance_color_table.get(tolerance_value, "grey")
-
 
     if value.ohms_exp < num_codes - 4:
         return
@@ -352,7 +355,7 @@ def draw_resistor_colorcode(
                              y + border,
                              stripe_width,
                              height - 2 * border,
-                             0, tolerance_color)
+                             0)
     else:
         for i in range(num_codes):
 
@@ -369,14 +372,14 @@ def draw_resistor_colorcode(
                                  y + border,
                                  stripe_width,
                                  height - 2 * border,
-                                 stripe_value, tolerance_color)
+                                 stripe_value)
 
         draw_resistor_stripe(c,
                              x + width - border - corner - stripe_width * 1.5,
                              y + border,
                              stripe_width,
                              height - 2 * border,
-                             -3, tolerance_color)
+                             tolerance_color_table(tolerance_value))
 
     c.setFillColor(black)
     c.setStrokeColor(black, 1)
@@ -493,7 +496,7 @@ def draw_resistor_sticker(
         ohms: float,
         draw_center_line: bool,
         mirror: bool,
-        tolerance: int,
+        tolerance: Optional[float],
 ) -> None:
     with StickerRect(c, layout, row, column, mirror) as rect:
 
@@ -570,10 +573,10 @@ def render_stickers(
     c: Canvas,
     layout: PaperConfig,
     values: ResistorList,
+    tolerance: Optional[float],
     draw_outlines: bool,
     draw_center_line: bool,
     draw_both_sides: bool,
-    tolerance: int
 ) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
@@ -697,9 +700,18 @@ def main() -> None:
         [9100000000,   9200000000,   3300000000],
     ]
 
+    # ############################################################################
+    # Alternatively, a set of common resistor values can be generated by the
+    # generate_values function.
+    # ############################################################################
+    # resistor_values: ResistorList = [ 0, 0.01 ] + generate_values(E24_COMMON_VALUES, 0, 6)
 
     # ############################################################################
-    # Resistor tolerance
+    # Resistor tolerance.
+    #
+    # Enable this if you want a specific tolerance value to be shown on
+    # the resistors.
+    #
     # 1:    1%      brown
     # 2:    2%      red
     # 0.5:  0.5%    green
@@ -708,14 +720,8 @@ def main() -> None:
     # 5:    5%      gold
     # 10:   10%     silver
     # ############################################################################
-
-    resistor_tolerance = 1 # in percentage
-
-    # ############################################################################
-    # Alternatively, a set of common resistor values can be generated by the
-    # generate_values function.
-    # ############################################################################
-    # resistor_values: ResistorList = [ 0, 0.01 ] + generate_values(E24_COMMON_VALUES, 0, 6)
+    tolerance_value = None
+    # tolerance_value = 1  # in percentage
 
     # ############################################################################
     # Further configuration options
@@ -747,7 +753,8 @@ def main() -> None:
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values, draw_outlines, draw_center_line, draw_both_sides, resistor_tolerance)
+    render_stickers(c, layout, resistor_values, tolerance_value,
+                    draw_outlines, draw_center_line, draw_both_sides)
 
     # Store canvas to PDF file
     c.save()

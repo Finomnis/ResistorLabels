@@ -10,7 +10,7 @@ from reportlab.lib.colors import black, toColor, HexColor, gray
 import math
 import sys
 
-from typing import Tuple, Union, Optional, List
+from typing import Tuple, Union, Optional, List, Mapping
 
 ResistorList = List[Union[Optional[float], List[Optional[float]]]]
 
@@ -222,17 +222,31 @@ class ResistorValue:
 
 def resistor_color_table(num: int) -> HexColor:
     return [
-        HexColor("#000000"),
-        HexColor("#964B00"),
-        HexColor("#FF3030"),
-        HexColor("#FFA500"),
-        HexColor("#FFFF00"),
-        HexColor("#00FF00"),
-        HexColor("#0000FF"),
-        HexColor("#C520F6"),
-        HexColor("#808080"),
-        HexColor("#FFFFFF"),
+        HexColor("#000000"),  # black
+        HexColor("#964B00"),  # brown
+        HexColor("#FF3030"),  # red
+        HexColor("#FFA500"),  # orange
+        HexColor("#FFFF00"),  # yellow
+        HexColor("#00FF00"),  # green
+        HexColor("#0000FF"),  # blue
+        HexColor("#C520F6"),  # violet
+        HexColor("#808080"),  # grey
+        HexColor("#FFFFFF"),  # white
     ][num]
+
+
+def tolerance_color_table(tolerance_value: Optional[float]) -> int:
+    tolerance_colors: Mapping[Optional[float], int] = {
+        1: 1,  # brown
+        2: 2,  # red
+        0.5: 5,  # green
+        0.25: 6,  # blue
+        0.1: 7,  # violet
+        5: -1,  # gold
+        10: -2,  # silver
+    }
+
+    return tolerance_colors.get(tolerance_value, -3)
 
 
 def draw_fancy_resistor_stripe(
@@ -315,7 +329,8 @@ def draw_resistor_colorcode(
         y: float,
         width: float,
         height: float,
-        num_codes: int
+        num_codes: int,
+        tolerance_value: Optional[float],
 ) -> None:
 
     if value.ohms_exp < num_codes - 4:
@@ -364,7 +379,7 @@ def draw_resistor_colorcode(
                              y + border,
                              stripe_width,
                              height - 2 * border,
-                             -3)
+                             tolerance_color_table(tolerance_value))
 
     c.setFillColor(black)
     c.setStrokeColor(black, 1)
@@ -480,7 +495,8 @@ def draw_resistor_sticker(
         column: int,
         ohms: float,
         draw_center_line: bool,
-        mirror: bool
+        mirror: bool,
+        tolerance: Optional[float],
 ) -> None:
     with StickerRect(c, layout, row, column, mirror) as rect:
 
@@ -525,14 +541,14 @@ def draw_resistor_sticker(
                                 rect.left + rect.width/2,
                                 rect.bottom + rect.height/4 - rect.height/45,
                                 rect.width/4, rect.height/4,
-                                3)
+                                3, tolerance)
 
         draw_resistor_colorcode(c, resistor_value,
                                 toColor("hsl(197, 59%, 100%)"), toColor("hsl(197, 59%, 73%)"),
                                 rect.left + rect.width * 0.75,
                                 rect.bottom + rect.height/4 - rect.height/45,
                                 rect.width/4, rect.height/4,
-                                4)
+                                4, tolerance)
 
         c.setFont('Arial Bold', smd_font_size * 1.35)
         c.drawString(rect.left + rect.width/2 + rect.width/32, rect.bottom +
@@ -557,9 +573,10 @@ def render_stickers(
     c: Canvas,
     layout: PaperConfig,
     values: ResistorList,
+    tolerance: Optional[float],
     draw_outlines: bool,
     draw_center_line: bool,
-    draw_both_sides: bool
+    draw_both_sides: bool,
 ) -> None:
     def flatten(elem: Union[Optional[float], List[Optional[float]]]) -> List[Optional[float]]:
         if isinstance(elem, list):
@@ -586,9 +603,9 @@ def render_stickers(
             begin_page(c, layout, draw_outlines)
 
         if value is not None:
-            draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False)
+            draw_resistor_sticker(c, layout, rowId, columnId, value, draw_center_line, False, tolerance)
             if draw_both_sides:
-                draw_resistor_sticker(c, layout, rowId, columnId, value, False, True)
+                draw_resistor_sticker(c, layout, rowId, columnId, value, False, True, tolerance)
 
     # End the page one final time
     end_page(c)
@@ -690,6 +707,23 @@ def main() -> None:
     # resistor_values: ResistorList = [ 0, 0.01 ] + generate_values(E24_COMMON_VALUES, 0, 6)
 
     # ############################################################################
+    # Resistor tolerance.
+    #
+    # Enable this if you want a specific tolerance value to be shown on
+    # the resistors.
+    #
+    # 1:    1%      brown
+    # 2:    2%      red
+    # 0.5:  0.5%    green
+    # 0.25: 0.25%   blue
+    # 0.1:  0.1%    violet
+    # 5:    5%      gold
+    # 10:   10%     silver
+    # ############################################################################
+    tolerance_value = None
+    # tolerance_value = 1  # in percentage
+
+    # ############################################################################
     # Further configuration options
     #
     # Change the following options as you desire.
@@ -719,7 +753,8 @@ def main() -> None:
     c = Canvas("ResistorLabels.pdf", pagesize=layout.pagesize)
 
     # Render the stickers
-    render_stickers(c, layout, resistor_values, draw_outlines, draw_center_line, draw_both_sides)
+    render_stickers(c, layout, resistor_values, tolerance_value,
+                    draw_outlines, draw_center_line, draw_both_sides)
 
     # Store canvas to PDF file
     c.save()

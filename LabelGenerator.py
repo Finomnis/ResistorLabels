@@ -12,7 +12,7 @@ import sys
 
 from typing import Tuple, Union, Optional, List, Mapping
 
-ResistorList = List[Union[Optional[float], List[Optional[float]]]]
+ResistorList = Union[List[float], List[Union[Optional[float], List[Optional[float]]]]]
 
 
 def load_font(font_name: str) -> None:
@@ -333,7 +333,20 @@ def draw_resistor_colorcode(
         tolerance_value: Optional[float],
 ) -> None:
 
-    if value.ohms_exp < num_codes - 4:
+    resistance_values: List[int] = []
+    for i in range(num_codes-1):
+        stripe_value = value.ohms_val
+        for _ in range(2-i):
+            stripe_value //= 10
+        stripe_value %= 10
+        resistance_values.append(stripe_value)
+    exp_value = value.ohms_exp + 2 - num_codes
+
+    while exp_value < -2 and resistance_values[-1] == 0:
+        exp_value += 1
+        resistance_values = [0] + resistance_values[:-1]
+
+    if exp_value < -2:
         return
 
     border = height/6
@@ -357,16 +370,7 @@ def draw_resistor_colorcode(
                              height - 2 * border,
                              0)
     else:
-        for i in range(num_codes):
-
-            if i == num_codes - 1:
-                stripe_value = value.ohms_exp + 2 - num_codes
-            else:
-                stripe_value = value.ohms_val
-                for _ in range(2-i):
-                    stripe_value //= 10
-                stripe_value %= 10
-
+        for i, stripe_value in enumerate(resistance_values + [exp_value]):
             draw_resistor_stripe(c,
                                  x + border + corner + stripe_width / 2 + 2 * stripe_width * i,
                                  y + border,
@@ -446,34 +450,35 @@ def get_4digit_code(value: ResistorValue) -> str:
     return ""
 
 
-def get_eia98_code(value: ResistorValue) -> str:
-    eia98_coding_table = {
-        100: "01", 178: "25", 316: "49", 562: "73",
-        102: "02", 182: "26", 324: "50", 576: "74",
-        105: "03", 187: "27", 332: "51", 590: "75",
-        107: "04", 191: "28", 340: "52", 604: "76",
-        110: "05", 196: "29", 348: "53", 619: "77",
-        113: "06", 200: "30", 357: "54", 634: "78",
-        115: "07", 205: "31", 365: "55", 649: "79",
-        118: "08", 210: "32", 374: "56", 665: "80",
-        121: "09", 215: "33", 383: "57", 681: "81",
-        124: "10", 221: "34", 392: "58", 698: "82",
-        127: "11", 226: "35", 402: "59", 715: "83",
-        130: "12", 232: "36", 412: "60", 732: "84",
-        133: "13", 237: "37", 422: "61", 750: "85",
-        137: "14", 243: "38", 432: "62", 768: "86",
-        140: "15", 249: "39", 442: "63", 787: "87",
-        143: "16", 255: "40", 453: "64", 806: "88",
-        147: "17", 261: "41", 464: "65", 825: "89",
-        150: "18", 267: "42", 475: "66", 845: "90",
-        154: "19", 274: "43", 487: "67", 866: "91",
-        158: "20", 280: "44", 499: "68", 887: "92",
-        162: "21", 287: "45", 511: "69", 909: "93",
-        165: "22", 294: "46", 523: "70", 931: "94",
-        169: "23", 301: "47", 536: "71", 953: "95",
-        174: "24", 309: "48", 549: "72", 976: "96",
-    }
+eia98_coding_table = {
+    100: "01", 178: "25", 316: "49", 562: "73",
+    102: "02", 182: "26", 324: "50", 576: "74",
+    105: "03", 187: "27", 332: "51", 590: "75",
+    107: "04", 191: "28", 340: "52", 604: "76",
+    110: "05", 196: "29", 348: "53", 619: "77",
+    113: "06", 200: "30", 357: "54", 634: "78",
+    115: "07", 205: "31", 365: "55", 649: "79",
+    118: "08", 210: "32", 374: "56", 665: "80",
+    121: "09", 215: "33", 383: "57", 681: "81",
+    124: "10", 221: "34", 392: "58", 698: "82",
+    127: "11", 226: "35", 402: "59", 715: "83",
+    130: "12", 232: "36", 412: "60", 732: "84",
+    133: "13", 237: "37", 422: "61", 750: "85",
+    137: "14", 243: "38", 432: "62", 768: "86",
+    140: "15", 249: "39", 442: "63", 787: "87",
+    143: "16", 255: "40", 453: "64", 806: "88",
+    147: "17", 261: "41", 464: "65", 825: "89",
+    150: "18", 267: "42", 475: "66", 845: "90",
+    154: "19", 274: "43", 487: "67", 866: "91",
+    158: "20", 280: "44", 499: "68", 887: "92",
+    162: "21", 287: "45", 511: "69", 909: "93",
+    165: "22", 294: "46", 523: "70", 931: "94",
+    169: "23", 301: "47", 536: "71", 953: "95",
+    174: "24", 309: "48", 549: "72", 976: "96",
+}
 
+
+def get_eia98_code(value: ResistorValue) -> str:
     if value.ohms_val not in eia98_coding_table:
         return ""
 
@@ -627,11 +632,12 @@ def render_outlines(c: Canvas, layout: PaperConfig) -> None:
 #
 # The list constants below can be used with the generate_values function to quickly create sets of
 # common resistor values.
-E12_VALUES = [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2]
-E24_COMMON_VALUES = [1.0,      1.2,      1.5,      1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
-                     3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1]
-E24_ALL_VALUES = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
-                  3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1]
+E12_VALUES = [100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820]
+E24_COMMON_VALUES = [100,      120,      150,      180, 200, 220, 240, 270, 300,
+                     330, 360, 390, 430, 470, 510, 560, 620, 680, 750, 820, 910]
+E24_ALL_VALUES = [100, 110, 120, 130, 150, 160, 180, 200, 220, 240, 270, 300,
+                  330, 360, 390, 430, 470, 510, 560, 620, 680, 750, 820, 910]
+EIA98_SMD_VALUES = [value for value in eia98_coding_table]
 
 
 # Scales a list of values by a power of 10. The list may be one of the E constants above, or your
@@ -664,11 +670,15 @@ def scale_values(
 #      [ 100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820 ]  # 10 ** 2 -> x100
 #    ]
 def generate_values(
-        series: List[float],  # the base series of resistor values
+        series: List[int],  # the base series of resistor values
         first_power: int,     # the first power of 10 to scale the series by
         last_power: int       # the last power of 10 to scale the series by
-) -> List[List[float]]:
-    return [scale_values(series, x) for x in range(first_power, last_power)]
+) -> List[float]:
+    return [
+        value
+        for x in range(first_power, last_power)
+        for value in scale_values(list(map(lambda v: v/100, sorted(list(set(series))))), x)
+    ]
 
 
 def main() -> None:
@@ -687,24 +697,25 @@ def main() -> None:
     #
     # Add "None" if no label should get generated at a specific position.
     # ############################################################################
-    resistor_values: ResistorList = [
-        [0,            0.02,         .1],
-        [1,            12,           13],
-        [210,          220,          330],
-        [3100,         3200,         3300],
-        [41000,        42000,        43000],
-        [510000,       None,         530000],
-        [6100000,      6200000,      6300000],
-        [71000000,     72000000,     73000000],
-        [810000000,    820000000,    830000000],
-        [9100000000,   9200000000,   3300000000],
-    ]
+    # resistor_values: ResistorList = [
+    #     [0,            0.02,         .1],
+    #     [1,            12,           13],
+    #     [210,          220,          330],
+    #     [3100,         3200,         3300],
+    #     [41000,        42000,        43000],
+    #     [510000,       None,         530000],
+    #     [6100000,      6200000,      6300000],
+    #     [71000000,     72000000,     73000000],
+    #     [810000000,    820000000,    830000000],
+    #     [9100000000,   9200000000,   3300000000],
+    # ]
 
     # ############################################################################
     # Alternatively, a set of common resistor values can be generated by the
     # generate_values function.
     # ############################################################################
     # resistor_values: ResistorList = [ 0, 0.01 ] + generate_values(E24_COMMON_VALUES, 0, 6)
+    resistor_values: ResistorList = [0, 0.01, 0.02, 0.03] + generate_values(E12_VALUES+E24_ALL_VALUES, -1, 6) + [1_000_000]
 
     # ############################################################################
     # Resistor tolerance.

@@ -23,6 +23,9 @@ The generated labels include:
 
 It will now generate a `ResistorLabels.pdf` that can be used to print onto AVERY 5260/L7157.
 
+For all the non-programmers, there are also pre-generated versions with all
+common resistor values for [Avery 5260](./CommonValuesAvery5260.pdf) and [Avery L7157](./CommonValuesAveryL7157.pdf).
+
 # More Details
 
 This is based on an idea from Zach Poff.

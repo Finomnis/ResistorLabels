@@ -48,7 +48,7 @@ jobs:
           python ./LabelGenerator.py
         if: matrix.os != 'macos-latest'
       - name: Archive generated PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: generated-${{ matrix.os}}-${{ matrix.python-version }}
           path: ResistorLabels.pdf
@@ -58,7 +58,7 @@ jobs:
         run: |
           python ./LabelGenerator.py --roboto
       - name: Archive generated PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: generated-${{ matrix.os}}-${{ matrix.python-version }}-roboto
           path: ResistorLabels.pdf

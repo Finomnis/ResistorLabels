@@ -102,20 +102,6 @@ AVERY_L7157 = PaperConfig(
     num_stickers_vertical=11,
 )
 
-A4 = PaperConfig(
-    paper_name="Full A4",
-    pagesize=A4,
-    sticker_width=66 * mm,
-    sticker_height=26 * mm,
-    sticker_corner_radius=0 * mm,
-    left_margin=6 * mm,
-    top_margin=5.5 * mm,
-    horizontal_stride=66 * mm,
-    vertical_stride=26 * mm,
-    num_stickers_horizontal=3,
-    num_stickers_vertical=11,
-)
-
 
 EJ_RANGE_24 = PaperConfig(
     paper_name="EJRange 24",
@@ -129,6 +115,21 @@ EJ_RANGE_24 = PaperConfig(
     vertical_stride=33.9 * mm,
     num_stickers_horizontal=3,
     num_stickers_vertical=8,
+)
+
+
+FULL_A4 = PaperConfig(
+    paper_name="Full A4",
+    pagesize=A4,
+    sticker_width=66 * mm,
+    sticker_height=26 * mm,
+    sticker_corner_radius=0 * mm,
+    left_margin=6 * mm,
+    top_margin=5.5 * mm,
+    horizontal_stride=66 * mm,
+    vertical_stride=26 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=11,
 )
 
 
@@ -703,6 +704,7 @@ def main() -> None:
     layout = AVERY_5260
     # layout = AVERY_L7157
     # layout = EJ_RANGE_24
+    # layout = FULL_A4
 
     # ############################################################################
     # Put your own resistor values in here!

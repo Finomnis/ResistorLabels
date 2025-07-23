@@ -632,6 +632,8 @@ def render_outlines(c: Canvas, layout: PaperConfig) -> None:
 #
 # The list constants below can be used with the generate_values function to quickly create sets of
 # common resistor values.
+E3_VALUES = [100, 220, 470]
+E6_VALUES = [100, 150, 220, 330, 470, 680]
 E12_VALUES = [100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820]
 E24_COMMON_VALUES = [100,      120,      150,      180, 200, 220, 240, 270, 300,
                      330, 360, 390, 430, 470, 510, 560, 620, 680, 750, 820, 910]

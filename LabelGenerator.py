@@ -118,6 +118,21 @@ EJ_RANGE_24 = PaperConfig(
 )
 
 
+FULL_A4 = PaperConfig(
+    paper_name="Full A4",
+    pagesize=A4,
+    sticker_width=66 * mm,
+    sticker_height=26 * mm,
+    sticker_corner_radius=0 * mm,
+    left_margin=6 * mm,
+    top_margin=5.5 * mm,
+    horizontal_stride=66 * mm,
+    vertical_stride=26 * mm,
+    num_stickers_horizontal=3,
+    num_stickers_vertical=11,
+)
+
+
 class StickerRect:
     def __init__(self, c: Canvas, layout: PaperConfig, row: int, column: int, mirror: bool):
         self.left = layout.left_margin + layout.horizontal_stride * column
@@ -691,6 +706,7 @@ def main() -> None:
     layout = AVERY_5260
     # layout = AVERY_L7157
     # layout = EJ_RANGE_24
+    # layout = FULL_A4
 
     # ############################################################################
     # Put your own resistor values in here!

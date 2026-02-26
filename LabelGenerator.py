@@ -347,6 +347,9 @@ def draw_resistor_colorcode(
         num_codes: int,
         tolerance_value: Optional[float],
 ) -> None:
+    # Only display resistors that can accurately represent the given value
+    if value.ohms_val % (10 ** (4 - num_codes)):
+        return
 
     resistance_values: List[int] = []
     for i in range(num_codes-1):
